@@ -73,9 +73,11 @@ You are an expert in TypeScript, Angular, and scalable web application developme
    más parecido que exista antes de crear uno nuevo, y se avisa que se
    está extendiendo el sistema de diseño.
 3. **El esquema de base de datos en Supabase todavía NO está definido
-   en detalle.** No crear tablas, políticas RLS, ni Edge Functions por
-   cuenta propia. Cuando se necesite, se debe proponer el esquema y
-   esperar confirmación antes de aplicarlo. (Ver sección 4 más abajo.)
+   en detalle, y el agente NO tiene acceso directo al proyecto real de
+   Supabase.** El agente escribe el SQL en archivos dentro del repo
+   (`database/`) y la persona lo ejecuta a mano en el SQL Editor de
+   Supabase. El agente nunca asume que un script ya fue ejecutado contra
+   la base real sin confirmarlo antes. (Ver sección 4 más abajo.)
 4. Ante cualquier ambigüedad entre lo que muestra `design-reference/`
    (HTML de referencia visual) y lo que dicen `business.md` o `style.md`,
    siempre ganan estos dos últimos documentos. El HTML es solo referencia
@@ -158,7 +160,7 @@ src/app/
   Supabase como mecanismo real de seguridad, no confiar solo en el guard
   de Angular (que es una capa de UX, no de seguridad).
 
-## 4. Sobre el modelo de datos (estado actual: pendiente)
+## 4. Sobre el modelo de datos y cómo se aplica (estado actual: pendiente)
 
 El esquema de tablas de Supabase todavía no fue definido en detalle en
 este proyecto. Se sabe que va a incluir, como mínimo, entidades para:
@@ -166,19 +168,50 @@ productos, categorías, pedidos (con sus items), zonas de delivery, staff
 con roles, y configuración del sitio — todas descritas conceptualmente en
 `business.md`.
 
-**Mientras este esquema no esté confirmado:**
-- No generar migraciones SQL ni crear tablas por iniciativa propia.
+**Flujo de trabajo para cambios de base de datos (definido y fijo para
+esta etapa del proyecto):**
+
+El agente **no tiene credenciales ni acceso directo** al proyecto de
+Supabase, y no debe asumir que las tiene ni pedirlas para ejecutar SQL
+automáticamente. El flujo es manual, así:
+
+1. Cuando se necesite crear o modificar una tabla, el agente escribe el
+   SQL correspondiente (`CREATE TABLE`, `ALTER TABLE`, políticas RLS,
+   etc.) en un archivo dentro del repo, en una carpeta `database/` (ej.
+   `database/001_create_products.sql`), numerada en orden de aplicación.
+2. El agente avisa explícitamente en el chat: qué archivo creó/modificó,
+   qué hace ese SQL, y que debe ser ejecutado a mano por la persona en el
+   **SQL Editor** del dashboard de Supabase.
+3. El agente **nunca asume que el SQL ya fue ejecutado** contra la base
+   real. Si una tarea posterior depende de que esa tabla ya exista, debe
+   preguntar explícitamente si ya se ejecutó ese script antes de generar
+   código que la consuma (ej. un servicio Angular haciendo `.from('products')`).
+4. Cada archivo SQL debe ser autocontenido y idealmente idempotente donde
+   sea razonable (usar `CREATE TABLE IF NOT EXISTS` cuando tenga sentido,
+   para evitar errores si se re-ejecuta por error).
+
+Este flujo es deliberadamente manual para esta etapa del proyecto, mientras
+el modelo de datos todavía se está definiendo y conviene revisar cada
+cambio antes de aplicarlo. Más adelante, si el esquema se estabiliza, se
+puede evaluar pasar a Supabase CLI con migraciones aplicadas automáticamente
+— pero ese cambio de flujo debe ser una decisión explícita, no algo que el
+agente proponga o aplique por iniciativa propia.
+
+**Mientras el esquema completo no esté confirmado y aplicado:**
+- No generar código Angular que asuma que una tabla ya existe en la base
+  real sin haber confirmado que el SQL correspondiente ya fue ejecutado.
 - Si una tarea requiere datos que todavía no tienen tabla definida, avisar
-  explícitamente cuál falta y proponer una estructura mínima, en lugar de
+  explícitamente cuál falta y proponer el SQL correspondiente, en lugar de
   asumir nombres de columnas o relaciones.
 - Se puede avanzar con maquetado de UI usando datos mock/hardcodeados de
   forma temporal y claramente señalada como tal (ej. un archivo
   `mock-data.ts` con comentario explícito), nunca mezclado silenciosamente
   con lo que después será una llamada real a Supabase.
 
-Cuando el esquema se confirme, este documento debe actualizarse con la
-referencia a dónde vive (ej. un archivo `schema.sql` o `database.md`) y
-esta sección debe reemplazarse por ese enlace.
+Cuando el esquema se confirme y se vaya aplicando, mantener un archivo
+`database/README.md` con el orden de ejecución y qué scripts ya fueron
+corridos contra el proyecto real, para no perder el rastro de qué existe
+hoy en la base.
 
 ## 5. Principios de negocio no negociables (resumen — ver `business.md` completo)
 
