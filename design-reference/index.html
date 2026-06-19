@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Burger House — Prototipo v2</title>
+<style>
+:root {
+  --accent: #FF6B1A; --accent-soft: #fff3ed;
+  --bg: #ffffff; --surface: #f8f7f5; --fg: #1a1a1a; --muted: #8a8a8a;
+  --border: #efefef; --success: #22c55e;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --radius-sm: 8px; --radius-md: 16px; --radius-pill: 9999px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{margin:0;background:var(--surface);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.container{max-width:1000px;margin-inline:auto;padding:20px 16px}
+h1{font-size:28px;font-weight:800;color:var(--accent);margin-bottom:4px}
+.sub{color:var(--muted);font-size:14px;margin-bottom:24px}
+.section{margin-bottom:28px}
+.section h2{font-size:18px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.section h2 .count{font-size:12px;color:var(--muted);font-weight:400}
+.grid{display:grid;gap:10px}
+@media(min-width:560px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:900px){.grid{grid-template-columns:repeat(3,1fr)}}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;transition:box-shadow .15s;cursor:pointer;text-decoration:none;color:var(--fg);display:block}
+.card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.06);border-color:var(--accent)}
+.card .tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:4px}
+.card .title{font-size:15px;font-weight:600;margin-bottom:4px}
+.card .desc{font-size:12px;color:var(--muted);line-height:1.4}
+.card .link{font-size:12px;color:var(--accent);font-weight:500;margin-top:8px;display:flex;align-items:center;gap:4px}
+.card .link::after{content:'→'}
+.role-tag{display:inline-block;padding:2px 8px;border-radius:var(--radius-pill);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em}
+.role-tag.client{background:#dbeafe;color:#1e40af}
+.role-tag.admin{background:#d1fae5;color:#065f46}
+.footer{border-top:1px solid var(--border);padding-top:16px;margin-top:8px;font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🍔 Burger House</h1>
+<p class="sub">Prototipo v2 — Sistema de diseño + pantallas navegables. Abrí cada pantalla en el navegador.</p>
+
+<div class="section">
+  <h2>Lado cliente <span class="count">6 pantallas</span></h2>
+  <div class="grid">
+    <a class="card" href="site-home.html">
+      <span class="role-tag client">Cliente</span>
+      <div class="title">🏠 Home</div>
+      <div class="desc">Hero food, categorías, productos destacados, WhatsApp flotante</div>
+      <div class="link">Ver pantalla</div>
+    </a>
+    <a class="card" href="site-catalogo.html">
+      <span class="role-tag client">Cliente</span>
+      <div class="title">📋 Catálogo</div>
+      <div class="desc">Grilla de productos con categorías, carrito lateral en desktop</div>
+      <div class="link">Ver pantalla</div>
+    </a>
+    <a class="card" href="site-carrito.html">
+      <span class="role-tag client">Cliente</span>
+      <div class="title">🛒 Carrito</div>
+      <div class="desc">Items editables, sugerencias, resumen, CTA tipo píldora</div>
+      <div class="link">Ver pantalla</div>
+    </a>
+    <a class="card" href="site-checkout.html">
+      <span class="role-tag client">Cliente</span>
+      <div class="title">📝 Checkout</div>
+      <div class="desc">Datos, tipo de entrega con zona, método de pago, resumen</div>
+      <div class="link">Ver pantalla</div>
+    </a>
+    <a class="card" href="site-confirmacion.html">
+      <span class="role-tag client">Cliente</span>
+      <div class="title">✅ Confirmación</div>
+      <div class="desc">Número de pedido, detalle, datos de pago por transferencia</div>
+      <div class="link">Ver pantalla</div>
+    </a>
+    <a class="card" href="site-estado.html">
+      <span class="role-tag client">Cliente</span>
+      <div class="title">🔍 Estado del pedido</div>
+      <div class="desc">Búsqueda + timeline visual + WhatsApp directo</div>
+      <div class="link">Ver pantalla</div>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Panel interno <span class="count">2 pantallas</span></h2>
+  <div class="grid">
+    <a class="card" href="admin-login.html">
+      <span class="role-tag admin">Staff</span>
+      <div class="title">🔐 Login de staff</div>
+      <div class="desc">Acceso con 3 roles (cocina/caja/admin), demo rápido</div>
+      <div class="link">Ver pantalla</div>
+    </a>
+    <a class="card" href="admin-cocina.html">
+      <span class="role-tag admin">Staff</span>
+      <div class="title">⚙️ Panel completo</div>
+      <div class="desc">Cocina (kanban) · Caja (gestión) · Admin (dashboard/productos/zonas/reportes)</div>
+      <div class="link">Ver pantalla</div>
+    </a>
+    <a class="card" href="admin-caja.html">
+      <span class="role-tag admin">Staff</span>
+      <div class="title">⚙️ Panel completo</div>
+      <div class="desc">Cocina (kanban) · Caja (gestión) · Admin (dashboard/productos/zonas/reportes)</div>
+      <div class="link">Ver pantalla</div>
+    </a>
+    <a class="card" href="admin-configuracion.html">
+      <span class="role-tag admin">Staff</span>
+      <div class="title">⚙️ Panel completo</div>
+      <div class="desc">Cocina (kanban) · Caja (gestión) · Admin (dashboard/productos/zonas/reportes)</div>
+      <div class="link">Ver pantalla</div>
+    </a>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Hecho con las referencias que describiste: naranja #FF6B1A, fondo blanco, Inter, bordes redondeados, bottom nav</span>
+  <span style="font-size:11px">v2 · Mobile-first · 375/768/1280px</span>
+</div>
+</div>
+</body>
+</html>

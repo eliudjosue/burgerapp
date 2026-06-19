@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Burger House — Catálogo</title>
+<style>
+:root {
+  --accent: #FF6B1A; --accent-soft: #fff3ed; --accent-dark: #e05500;
+  --bg: #ffffff; --surface: #f8f7f5; --fg: #1a1a1a; --muted: #8a8a8a;
+  --border: #efefef; --success: #22c55e; --warn: #f59e0b; --danger: #ef4444;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --radius-sm: 8px; --radius-md: 16px; --radius-lg: 24px; --radius-pill: 9999px;
+  --nav-h: 64px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--surface);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:80px}
+.container{padding-inline:16px;max-width:1200px;margin-inline:auto}
+@media(min-width:768px){.container{padding-inline:24px}}
+
+/* ─── Top bar ─── */
+.top-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.back-btn{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.back-btn svg{width:20px;height:20px;color:var(--fg)}
+.top-bar h1{font-size:18px;font-weight:700;flex:1}
+
+/* ─── Category tabs ─── */
+.cat-tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 16px 0;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.cat-tabs::-webkit-scrollbar{display:none}
+.cat-tab{flex-shrink:0;padding:8px 20px;border-radius:var(--radius-pill);background:var(--surface);border:1px solid var(--border);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .15s}
+.cat-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ─── Grid ─── */
+.product-grid{display:grid;gap:12px;padding:16px;grid-template-columns:1fr}
+@media(min-width:480px){.product-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.product-grid{grid-template-columns:repeat(3,1fr)}}
+.product-card{background:var(--bg);border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:all .15s}
+.product-card:hover{border-color:var(--accent);box-shadow:0 4px 20px rgba(255,107,26,0.08)}
+.product-card-img{width:100%;height:160px;object-fit:cover;background:linear-gradient(135deg,#f5f5f5,#e0e0e0)}
+.product-card-body{padding:12px}
+.product-card-body h4{font-size:15px;font-weight:600;margin-bottom:2px}
+.product-card-body .desc{font-size:12px;color:var(--muted);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.product-card-footer{display:flex;align-items:center;justify-content:space-between}
+
+@media(min-width:768px){
+  .product-card-img{height:180px}
+}
+@media(min-width:1280px){
+  .product-card-img{height:200px}
+  .product-card-body h4{font-size:16px}
+  .product-card-body .desc{font-size:13px}
+}
+
+/* ─── Price + add button ─── */
+.price{font-size:16px;font-weight:700;color:var(--fg)}
+.btn-add{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;flex-shrink:0}
+.btn-add:active{transform:scale(0.9)}
+
+/* ─── Cart sidebar (desktop) ─── */
+@media(min-width:1024px){
+  .layout{display:grid;grid-template-columns:1fr 340px;gap:24px;padding:20px 24px;max-width:1200px;margin-inline:auto}
+  .cart-sidebar{position:sticky;top:76px;align-self:start;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;max-height:calc(100vh - 100px);overflow-y:auto}
+  .cart-sidebar h3{font-size:15px;font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+  .cart-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+  .cart-item:last-child{border-bottom:none}
+  .cart-item img{width:44px;height:44px;border-radius:var(--radius-sm);object-fit:cover;background:#eee;flex-shrink:0}
+  .cart-item-info{flex:1}
+  .cart-item-info .name{font-size:13px;font-weight:600}
+  .cart-item-info .qty{font-size:11px;color:var(--muted)}
+  .cart-item-price{font-size:13px;font-weight:600}
+  .cart-total{display:flex;justify-content:space-between;padding:10px 0 0;font-size:15px;font-weight:700;margin-top:8px;border-top:1px solid var(--border)}
+  .btn-checkout{width:100%;padding:12px;border-radius:var(--radius-pill);background:var(--accent);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;margin-top:10px}
+}
+@media(max-width:1023px){
+  .cart-sidebar{display:none}
+}
+
+/* ─── Bottom nav ─── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--border);display:flex;z-index:100;padding:4px 0;padding-bottom:env(safe-area-inset-bottom,4px)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border:none;background:none;font-size:10px;color:var(--muted);cursor:pointer;transition:color .15s}
+.nav-item.active{color:var(--accent)}
+.nav-item svg{width:24px;height:24px}
+.nav-item span{font-weight:500}
+@media(min-width:1024px){.bottom-nav{display:none}}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <button class="back-btn" onclick="location.href='site-home.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+  </button>
+  <h1>Catálogo</h1>
+  <button style="width:40px;height:40px;border-radius:50%;background:none;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative" onclick="location.href='site-carrito.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+    <span style="position:absolute;top:-2px;right:-2px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center">3</span>
+  </button>
+</div>
+
+<div class="cat-tabs">
+  <div class="cat-tab active">Todas</div>
+  <div class="cat-tab">Hamburguesas</div>
+  <div class="cat-tab">Combos</div>
+  <div class="cat-tab">Bebidas</div>
+  <div class="cat-tab">Postres</div>
+  <div class="cat-tab">Papas</div>
+</div>
+
+<div class="layout">
+<div class="product-grid">
+
+  <div class="product-card" onclick="location.href='site-carrito.html?add=clasica'">
+    <div class="product-card-img" style="background:linear-gradient(135deg,#e8d5c4,#d4b89a)"></div>
+    <div class="product-card-body">
+      <h4>Clásica Burger</h4>
+      <div class="desc">Carne angus 150g, lechuga, tomate, cebolla morada, pepinos y salsa especial</div>
+      <div class="product-card-footer">
+        <span class="price">$2,800</span>
+        <button class="btn-add" onclick="event.stopPropagation()">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-card" onclick="location.href='site-carrito.html?add=doblebacon'">
+    <div class="product-card-img" style="background:linear-gradient(135deg,#d4a574,#c49060)"></div>
+    <div class="product-card-body">
+      <h4>Doble Cheese Bacon</h4>
+      <div class="desc">Dos medallones angus, doble cheddar, bacon, cebolla caramelizada, salsa BBQ</div>
+      <div class="product-card-footer">
+        <span class="price">$4,200</span>
+        <button class="btn-add" onclick="event.stopPropagation()">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-card" onclick="location.href='site-carrito.html?add=criolla'">
+    <div class="product-card-img" style="background:linear-gradient(135deg,#f0e0d0,#dcc4ac)"></div>
+    <div class="product-card-body">
+      <h4>Criolla Burger</h4>
+      <div class="desc">Carne angus, provoleta, chimichurri, tomate ahumado, rúcula</div>
+      <div class="product-card-footer">
+        <span class="price">$3,200</span>
+        <button class="btn-add" onclick="event.stopPropagation()">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-card" onclick="location.href='site-carrito.html?add=veggie'">
+    <div class="product-card-img" style="background:linear-gradient(135deg,#c8e6c9,#a5d6a7)"></div>
+    <div class="product-card-body">
+      <h4>Veggie Burger</h4>
+      <div class="desc">Medallón de garbanzos y quinoa, palta, tomate, lechuga, mayo vegana</div>
+      <div class="product-card-footer">
+        <span class="price">$2,900</span>
+        <button class="btn-add" onclick="event.stopPropagation()">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-card" onclick="location.href='site-carrito.html?add=combo1'">
+    <div class="product-card-img" style="background:linear-gradient(135deg,#ffcc80,#ffb74d)"></div>
+    <div class="product-card-body">
+      <h4>Mega Combo</h4>
+      <div class="desc">Clásica + papas fritas grandes + bebida 500ml a elección</div>
+      <div class="product-card-footer">
+        <span class="price">$4,500</span>
+        <button class="btn-add" onclick="event.stopPropagation()">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-card" onclick="location.href='site-carrito.html?add=combo2'">
+    <div class="product-card-img" style="background:linear-gradient(135deg,#ffab91,#ff8a65)"></div>
+    <div class="product-card-body">
+      <h4>Combo Doble</h4>
+      <div class="desc">Doble Cheese Bacon + papas con cheddar + bebida 750ml</div>
+      <div class="product-card-footer">
+        <span class="price">$6,200</span>
+        <button class="btn-add" onclick="event.stopPropagation()">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-card" onclick="location.href='site-carrito.html?add=cocacola'">
+    <div class="product-card-img" style="background:linear-gradient(135deg,#ef5350,#c62828)"></div>
+    <div class="product-card-body">
+      <h4>Coca-Cola 500ml</h4>
+      <div class="desc">Gaseosa Coca-Cola original 500ml</div>
+      <div class="product-card-footer">
+        <span class="price">$800</span>
+        <button class="btn-add" onclick="event.stopPropagation()">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-card" onclick="location.href='site-carrito.html?add=sprite'">
+    <div class="product-card-img" style="background:linear-gradient(135deg,#66bb6a,#2e7d32)"></div>
+    <div class="product-card-body">
+      <h4>Sprite 500ml</h4>
+      <div class="desc">Gaseosa Sprive 500ml</div>
+      <div class="product-card-footer">
+        <span class="price">$800</span>
+        <button class="btn-add" onclick="event.stopPropagation()">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-card" onclick="location.href='site-carrito.html?add=papascheddar'">
+    <div class="product-card-img" style="background:linear-gradient(135deg,#fff8e1,#ffecb3)"></div>
+    <div class="product-card-body">
+      <h4>Papas con Cheddar</h4>
+      <div class="desc">Papas fritas con cheddar fundido y bacon crocante</div>
+      <div class="product-card-footer">
+        <span class="price">$1,900</span>
+        <button class="btn-add" onclick="event.stopPropagation()">+</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Cart sidebar (desktop) -->
+<div class="cart-sidebar">
+  <h3>Tu pedido</h3>
+  <div class="cart-item">
+    <div style="width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#e8d5c4,#d4b89a);flex-shrink:0"></div>
+    <div class="cart-item-info">
+      <div class="name">Clásica Burger</div>
+      <div class="qty">Cant: 2</div>
+    </div>
+    <div class="cart-item-price">$5,600</div>
+  </div>
+  <div class="cart-item">
+    <div style="width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#ffcc80,#ffb74d);flex-shrink:0"></div>
+    <div class="cart-item-info">
+      <div class="name">Mega Combo</div>
+      <div class="qty">Cant: 1</div>
+    </div>
+    <div class="cart-item-price">$4,500</div>
+  </div>
+  <div class="cart-total">
+    <span>Total</span>
+    <span>$10,100</span>
+  </div>
+  <button class="btn-checkout" onclick="location.href='site-checkout.html'">Ir al checkout</button>
+</div>
+</div>
+
+<!-- Bottom nav -->
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='site-home.html'">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="nav-item active" onclick="location.href='site-catalogo.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <span>Catálogo</span>
+  </button>
+  <button class="nav-item" onclick="location.href='site-carrito.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+    <span>Carrito</span>
+  </button>
+  <button class="nav-item" onclick="location.href='site-estado.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg>
+    <span>Pedido</span>
+  </button>
+</nav>
+</body>
+</html>

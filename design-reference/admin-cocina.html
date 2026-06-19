@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cocina — Burger House</title>
+<style>
+:root {
+  --bg: #f5f4f1; --surface: #ffffff; --fg: #1c1a17; --muted: #6b6760;
+  --border: #e5e1da; --accent: #d4532e; --accent-on: #ffffff;
+  --accent-soft: color-mix(in oklch, var(--accent) 14%, transparent);
+  --fg-soft: color-mix(in oklch, var(--fg) 6%, transparent);
+  --success: #1a9d5a; --success-soft: color-mix(in oklch, var(--success) 14%, transparent);
+  --warn: #e09d1a; --warn-soft: color-mix(in oklch, var(--warn) 14%, transparent);
+  --danger: #d43a3a; --danger-soft: color-mix(in oklch, var(--danger) 14%, transparent);
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  --radius-sm: 8px; --radius-md: 12px; --radius-pill: 9999px;
+  --gutter: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body);
+  font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; cursor: pointer; }
+img { max-width: 100%; }
+.container { max-width: 1400px; margin-inline: auto; padding-inline: var(--gutter); }
+
+/* ─── top bar ─── */
+.topbar {
+  background: var(--fg); color: #fff; padding: 8px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 20;
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.topbar .back-to { display: flex; align-items: center; gap: 4px; color: rgba(255,255,255,0.5); font-size: 12px; background: none; border: none; text-decoration: none; }
+.topbar .back-to:hover { color: #fff; }
+.topbar-title { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.topbar-badge { background: var(--accent); color: var(--accent-on); padding: 1px 7px; border-radius: var(--radius-pill); font-family: var(--font-mono); font-size: 10px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-time { font-family: var(--font-mono); font-size: 11px; color: rgba(255,255,255,0.4); font-variant-numeric: tabular-nums; }
+.topbar-user { font-size: 11px; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 6px; }
+.topbar-user .logout { color: rgba(255,255,255,0.3); text-decoration: underline; font-size: 11px; }
+
+/* ─── stats bar ─── */
+.stats-bar {
+  display: flex; gap: 8px; padding: 10px 0; overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.stat-chip {
+  flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: var(--radius-pill);
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 12px; font-weight: 500; white-space: nowrap;
+}
+.stat-chip .num { font-family: var(--font-mono); font-weight: 600; font-size: 14px; }
+.stat-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ─── board ─── */
+.board {
+  display: flex; gap: 12px; padding-bottom: 20px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  min-height: calc(100vh - 110px);
+}
+.board-col {
+  flex: 1; min-width: 280px; max-width: 420px;
+}
+.board-col-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; margin-bottom: 8px;
+  border-radius: var(--radius-sm); font-size: 13px; font-weight: 600;
+}
+.board-col-header .count {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 400; opacity: 0.7;
+  margin-left: auto;
+}
+.board-col-header.warn { background: var(--warn-soft); color: #8a6a0a; }
+.board-col-header.accent { background: var(--accent-soft); color: var(--accent); }
+.board-col-header.success { background: var(--success-soft); color: #0a6a3a; }
+
+/* ─── order card (POS dense) ─── */
+.order-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  margin-bottom: 8px; border-left: 4px solid var(--border);
+  transition: box-shadow 0.1s; position: relative;
+}
+.order-card:hover { box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.order-card.col-pending { border-left-color: var(--warn); }
+.order-card.col-prep { border-left-color: var(--accent); }
+
+.order-card-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 4px;
+}
+.order-num { font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+.order-meta { display: flex; align-items: center; gap: 6px; }
+.order-time { font-family: var(--font-mono); font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.order-client { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+
+.order-items { font-size: 13px; line-height: 1.5; margin-bottom: 6px; }
+.order-item { display: flex; justify-content: space-between; padding: 1px 0; }
+.order-item-qty { font-family: var(--font-mono); color: var(--muted); min-width: 24px; }
+.order-item-name { flex: 1; }
+.order-item-name .note-mark { color: var(--accent); cursor: help; }
+
+.order-notes {
+  font-size: 11px; color: var(--accent); background: var(--accent-soft);
+  padding: 4px 8px; border-radius: 4px; margin-bottom: 6px;
+  display: none;
+}
+.order-notes.show { display: block; }
+
+.order-actions { display: flex; gap: 6px; margin-top: 8px; }
+.btn {
+  flex: 1; padding: 8px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600; border: none; text-align: center;
+  transition: background 0.1s;
+}
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--accent); color: var(--accent-on); }
+.btn.primary:hover { background: color-mix(in oklch, var(--accent), black 10%); }
+.btn.success { background: var(--success); color: #fff; }
+.btn.success:hover { background: color-mix(in oklch, var(--success), black 10%); }
+.btn.outline { background: var(--surface); color: var(--fg); border: 1px solid var(--border); }
+.btn.outline:hover { border-color: var(--muted); }
+.btn.small { flex: 0 1 auto; padding: 5px 10px; font-size: 11px; }
+
+/* ─── empty column ─── */
+.col-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 32px 12px; color: var(--muted); text-align: center; gap: 6px;
+}
+.col-empty svg { width: 28px; height: 28px; opacity: 0.25; }
+.col-empty p { font-size: 12px; }
+
+/* ─── alert ─── */
+.new-order-alert {
+  position: fixed; top: 48px; right: 12px; z-index: 30;
+  background: var(--accent); color: var(--accent-on); padding: 10px 16px;
+  border-radius: var(--radius-sm); box-shadow: 0 4px 16px rgba(212,83,46,0.3);
+  display: none; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 500;
+  animation: slideIn 0.3s ease;
+}
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.new-order-alert .close { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; padding: 2px; }
+
+/* ─── tablet ─── */
+@media (min-width: 640px) {
+  :root { --gutter: 16px; }
+  .board-col { min-width: 300px; }
+  .order-num { font-size: 19px; }
+  .order-item { font-size: 14px; }
+}
+
+@media (min-width: 900px) {
+  :root { --gutter: 20px; }
+  .board { gap: 16px; overflow-x: visible; }
+  .board-col { min-width: 320px; }
+  .order-card { padding: 12px 14px; }
+  .order-num { font-size: 21px; }
+  .stats-bar { justify-content: center; }
+}
+
+@media (min-width: 1280px) {
+  .board { gap: 20px; }
+  .board-col { min-width: 360px; }
+  .order-card { padding: 14px 16px; }
+  .order-item { font-size: 15px; }
+  .btn { padding: 10px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="back-to">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Proyectos
+    </a>
+    <span class="topbar-title">
+      Cocina
+      <span class="topbar-badge" id="activeCount">3 activos</span>
+    </span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-time" id="clock"></span>
+    <span class="topbar-user">
+      cocina@burger.house
+      <a href="admin-login.html" class="logout">Salir</a>
+    </span>
+  </div>
+</div>
+
+<div class="new-order-alert" id="newOrderAlert">
+  <span>🔔 Nuevo pedido recibido</span>
+  <button class="close" onclick="this.parentElement.style.display='none'">✕</button>
+</div>
+
+<div class="container">
+  <div class="stats-bar">
+    <div class="stat-chip">
+      <span class="dot" style="background: var(--warn);"></span>
+      <span>Para preparar</span>
+      <span class="num" id="sPending">2</span>
+    </div>
+    <div class="stat-chip">
+      <span class="dot" style="background: var(--accent);"></span>
+      <span>En preparación</span>
+      <span class="num" id="sPrep">1</span>
+    </div>
+    <div class="stat-chip">
+      <span class="dot" style="background: var(--success);"></span>
+      <span>Listos hoy</span>
+      <span class="num" id="sDone">8</span>
+    </div>
+    <div class="stat-chip">
+      <span>Tiempo promedio</span>
+      <span class="num">14 min</span>
+    </div>
+  </div>
+
+  <div class="board" id="board">
+    <!-- column: para preparar -->
+    <div class="board-col" data-col="pending">
+      <div class="board-col-header warn">
+        <span class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--warn);display:inline-block"></span>
+        Para preparar
+        <span class="count" id="cPending">2</span>
+      </div>
+
+      <div class="order-card col-pending" data-order="1035">
+        <div class="order-card-header">
+          <span class="order-num">#1035</span>
+          <div class="order-meta">
+            <span class="order-time">hace 3 min</span>
+          </div>
+        </div>
+        <div class="order-client">Lucía M. · Delivery</div>
+        <div class="order-items">
+          <div class="order-item"><span class="order-item-qty">×2</span><span class="order-item-name">Hamburguesa<wbr> Completa</span></div>
+          <div class="order-item"><span class="order-item-qty">×1</span><span class="order-item-name">Papas con Cheddar</span></div>
+          <div class="order-item"><span class="order-item-qty">×1</span><span class="order-item-name">Coca-Cola 500ml</span></div>
+        </div>
+        <div class="order-notes show">📝 Sin cebolla, bien cocida</div>
+        <div class="order-actions">
+          <button class="btn outline small" onclick="showNotes(this)">💬</button>
+          <button class="btn primary" onclick="startPrep(this)">Iniciar preparación</button>
+        </div>
+      </div>
+
+      <div class="order-card col-pending" data-order="1037">
+        <div class="order-card-header">
+          <span class="order-num">#1037</span>
+          <div class="order-meta">
+            <span class="order-time">hace 1 min</span>
+          </div>
+        </div>
+        <div class="order-client">Carlos G. · Delivery</div>
+        <div class="order-items">
+          <div class="order-item"><span class="order-item-qty">×1</span><span class="order-item-name">Combo Clásico</span></div>
+          <div class="order-item"><span class="order-item-qty">×1</span><span class="order-item-name">Hamburguesa<wbr> BBQ</span></div>
+        </div>
+        <div class="order-notes"></div>
+        <div class="order-actions">
+          <button class="btn primary" onclick="startPrep(this)">Iniciar preparación</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- column: en preparación -->
+    <div class="board-col" data-col="prep">
+      <div class="board-col-header accent">
+        <span class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>
+        En preparación
+        <span class="count" id="cPrep">2</span>
+      </div>
+
+      <div class="order-card col-prep" data-order="1034">
+        <div class="order-card-header">
+          <span class="order-num">#1034</span>
+          <div class="order-meta">
+            <span class="order-time">hace 14 min</span>
+            <span style="font-family:var(--font-mono);font-size:10px;color:var(--danger);font-weight:600;">⏰ +4</span>
+          </div>
+        </div>
+        <div class="order-client">Ana M. · Delivery</div>
+        <div class="order-items">
+          <div class="order-item"><span class="order-item-qty">×2</span><span class="order-item-name">Hamburguesa<wbr> Clásica</span></div>
+          <div class="order-item"><span class="order-item-qty">×1</span><span class="order-item-name">Papas con Cheddar</span></div>
+          <div class="order-item"><span class="order-item-qty">×2</span><span class="order-item-name">Coca-Cola 500ml</span></div>
+        </div>
+        <div class="order-notes show">📝 Sin pepinos</div>
+        <div class="order-actions">
+          <button class="btn outline small" onclick="showNotes(this)">💬</button>
+          <button class="btn success" onclick="markReady(this)">✓ Marcar listo</button>
+        </div>
+      </div>
+
+      <div class="order-card col-prep" data-order="1036">
+        <div class="order-card-header">
+          <span class="order-num">#1036</span>
+          <div class="order-meta">
+            <span class="order-time">hace 7 min</span>
+          </div>
+        </div>
+        <div class="order-client">Pedro S. · Retiro</div>
+        <div class="order-items">
+          <div class="order-item"><span class="order-item-qty">×1</span><span class="order-item-name">Mega Combo</span></div>
+          <div class="order-item"><span class="order-item-qty">×1</span><span class="order-item-name">Papas fritas</span></div>
+        </div>
+        <div class="order-notes"></div>
+        <div class="order-actions">
+          <button class="btn success" onclick="markReady(this)">✓ Marcar listo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- column: listos -->
+    <div class="board-col" data-col="done">
+      <div class="board-col-header success">
+        <span class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block"></span>
+        Listos para entregar
+        <span class="count" id="cDone">1</span>
+      </div>
+
+      <div class="order-card" data-order="1032" style="opacity:0.85;">
+        <div class="order-card-header">
+          <span class="order-num">#1032</span>
+          <div class="order-meta">
+            <span class="order-time">hace 22 min</span>
+          </div>
+        </div>
+        <div class="order-client">María L. · Delivery</div>
+        <div class="order-items">
+          <div class="order-item"><span class="order-item-qty">×1</span><span class="order-item-name">Veggie Burger</span></div>
+          <div class="order-item"><span class="order-item-qty">×1</span><span class="order-item-name">Sprite 500ml</span></div>
+        </div>
+        <div class="order-actions" style="justify-content:flex-end;">
+          <span style="font-size:11px;color:var(--success);font-weight:600;">✓ Avisar a caja</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let orderCounters = { pending: 2, prep: 2, done: 1 };
+
+function updateAllCounts() {
+  document.querySelectorAll('.board-col').forEach(col => {
+    const type = col.dataset.col;
+    const cards = col.querySelectorAll('.order-card[data-order]');
+    const count = cards.length;
+    orderCounters[type] = count;
+    const el = col.querySelector('.count');
+    if (el) el.textContent = count;
+  });
+  const total = orderCounters.pending + orderCounters.prep;
+  const badge = document.getElementById('activeCount');
+  if (badge) badge.textContent = total + ' activos';
+  document.getElementById('sPending').textContent = orderCounters.pending;
+  document.getElementById('sPrep').textContent = orderCounters.prep;
+  document.getElementById('sDone').textContent = orderCounters.done;
+}
+
+function showNotes(btn) {
+  const card = btn.closest('.order-card');
+  const notes = card.querySelector('.order-notes');
+  if (notes) notes.classList.toggle('show');
+}
+
+function startPrep(btn) {
+  const card = btn.closest('.order-card');
+  card.classList.remove('col-pending');
+  card.classList.add('col-prep');
+  card.querySelector('.order-notes')?.classList.add('show');
+  const actions = card.querySelector('.order-actions');
+  const timerMatch = card.querySelector('.order-time');
+  if (timerMatch) timerMatch.textContent = 'recién iniciado';
+  actions.innerHTML = `
+    <button class="btn outline small" onclick="showNotes(this)">💬</button>
+    <button class="btn success" onclick="markReady(this)">✓ Marcar listo</button>
+  `;
+  moveCardToCol(card, 'prep');
+  showAlert('Pedido #' + card.dataset.order + ' en preparación');
+}
+
+function markReady(btn) {
+  const card = btn.closest('.order-card');
+  card.style.opacity = '0.85';
+  card.style.borderLeftColor = 'var(--success)';
+  const actions = card.querySelector('.order-actions');
+  actions.innerHTML = '<span style="font-size:11px;color:var(--success);font-weight:600;flex:1;text-align:center;">✓ Listo — avisar a caja</span>';
+  moveCardToCol(card, 'done');
+  showAlert('Pedido #' + card.dataset.order + ' listo para entregar');
+}
+
+function moveCardToCol(card, targetCol) {
+  const col = document.querySelector('.board-col[data-col="' + targetCol + '"]');
+  if (col) {
+    col.appendChild(card);
+    updateAllCounts();
+  }
+}
+
+function showAlert(msg) {
+  const alert = document.getElementById('newOrderAlert');
+  alert.querySelector('span').textContent = '✓ ' + msg;
+  alert.style.display = 'flex';
+  clearTimeout(alert._hide);
+  alert._hide = setTimeout(() => { alert.style.display = 'none'; }, 3000);
+}
+
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  document.getElementById('clock').textContent = h + ':' + m;
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+setTimeout(() => {
+  const alert = document.getElementById('newOrderAlert');
+  alert.querySelector('span').textContent = '🔔 Nuevo pedido #1038';
+  alert.style.display = 'flex';
+  setTimeout(() => { alert.style.display = 'none'; }, 5000);
+}, 10000);
+
+setInterval(() => {
+  if (!document.hidden) {
+    const t = document.querySelectorAll('.board-col[data-col="prep"] .order-card .order-time');
+    t.forEach(el => {
+      if (!el.textContent.includes('recién')) {
+        const m = parseInt(el.textContent.replace(/\D/g, '')) || 0;
+        if (m > 0) el.textContent = 'hace ' + (m + 1) + ' min';
+      }
+    });
+  }
+}, 60000);
+</script>
+</body>
+</html>

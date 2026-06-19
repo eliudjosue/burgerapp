@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Burger House — Hamburguesa Clásica</title>
+<style>
+:root {
+  --bg: #faf9f6; --surface: #ffffff; --fg: #1c1a17; --muted: #6b6760;
+  --border: #e5e1da; --accent: #d4532e; --accent-on: #ffffff;
+  --accent-soft: color-mix(in oklch, var(--accent) 14%, transparent);
+  --fg-soft: color-mix(in oklch, var(--fg) 6%, transparent);
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  --radius-sm: 8px; --radius-md: 12px;
+  --container: 900px; --gutter: 16px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--surface); color: var(--fg); font-family: var(--font-body);
+  font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  padding-bottom: 100px;
+}
+button { font: inherit; cursor: pointer; }
+.container { max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
+
+.page-header { padding: 12px var(--gutter); border-bottom: 1px solid var(--border); }
+.page-header-inner { display: flex; align-items: center; max-width: var(--container); margin-inline: auto; }
+.back-btn { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 14px; background: none; border: none; }
+.back-btn:hover { color: var(--fg); }
+
+.prod-img { width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+@media (min-width: 768px) { .prod-img { aspect-ratio: 2.2/1; } }
+
+.prod-info { padding: 20px var(--gutter) 0; max-width: var(--container); margin-inline: auto; }
+.prod-name { font-family: var(--font-display); font-size: clamp(24px, 4vw, 36px); font-weight: 600; line-height: 1.15; letter-spacing: -0.015em; }
+.prod-desc { color: var(--muted); font-size: 15px; margin-top: 8px; max-width: 55ch; }
+.prod-price { font-size: 32px; font-weight: 600; color: var(--accent); margin-top: 16px; }
+
+.prod-qty { display: flex; align-items: center; gap: 16px; margin-top: 20px; }
+.qty-btn { width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); display: grid; place-items: center; font-size: 22px; transition: all 0.1s; }
+.qty-btn:hover { border-color: var(--muted); }
+.qty-num { font-size: 22px; font-weight: 600; min-width: 28px; text-align: center; }
+.prod-add { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 24px; border-radius: var(--radius-sm); font-size: 16px; font-weight: 600;
+  border: none; transition: background 0.15s;
+}
+.btn-primary { background: var(--accent); color: var(--accent-on); width: 100%; }
+.btn-primary:hover { background: color-mix(in oklch, var(--accent), black 10%); }
+.btn-secondary { background: transparent; color: var(--fg); border: 1px solid var(--border); width: 100%; }
+
+/* ─── related products ─── */
+.related { padding: 32px 0; background: var(--bg); margin-top: 24px; }
+.related h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+.related-scroll { display: flex; gap: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.related-card { flex: 0 0 180px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; cursor: pointer; }
+.related-card-img { width: 100%; aspect-ratio: 16/10; }
+.related-card-body { padding: 10px 12px 14px; }
+.related-card-name { font-weight: 600; font-size: 14px; }
+.related-card-price { font-size: 15px; color: var(--accent); font-weight: 600; margin-top: 4px; }
+
+/* ─── bottom nav ─── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: var(--surface); border-top: 1px solid var(--border);
+  display: flex; height: 64px;
+}
+.bottom-nav a {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; font-size: 10px; color: var(--muted); text-decoration: none;
+}
+.bottom-nav a.active { color: var(--accent); }
+.bottom-nav a svg { width: 24px; height: 24px; }
+@media (min-width: 1024px) { .bottom-nav { display: none; } }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <button class="back-btn" onclick="history.back()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Volver
+    </button>
+  </div>
+</header>
+
+<div class="prod-img" style="background: linear-gradient(135deg, #dbb88a, #c09060);"></div>
+
+<div class="prod-info">
+  <h1 class="prod-name">Hamburguesa Clásica</h1>
+  <p class="prod-desc">Carne vacuna premium de 180g, queso cheddar fundido, lechuga fresca, tomate, cebolla morada y nuestra salsa especial. Acompañada de papas rústicas.</p>
+  <div class="prod-price">$3.200</div>
+
+  <div class="prod-qty">
+    <button class="qty-btn" id="qtyDec">−</button>
+    <span class="qty-num" id="qtyDisplay">1</span>
+    <button class="qty-btn" id="qtyInc">+</button>
+  </div>
+
+  <div class="prod-add">
+    <button class="btn btn-primary" onclick="addToCart()">Agregar al pedido</button>
+    <button class="btn btn-secondary" onclick="location.href='site-catalogo.html'">Seguir comprando</button>
+  </div>
+</div>
+
+<section class="related">
+  <div class="container">
+    <h2>También te puede gustar</h2>
+    <div class="related-scroll">
+      <div class="related-card" onclick="location.href='site-detalle.html'">
+        <div class="related-card-img" style="background: linear-gradient(135deg, #c89060, #a87840);"></div>
+        <div class="related-card-body">
+          <div class="related-card-name">Hamburguesa BBQ</div>
+          <div class="related-card-price">$3.600</div>
+        </div>
+      </div>
+      <div class="related-card" onclick="location.href='site-detalle.html'">
+        <div class="related-card-img" style="background: linear-gradient(135deg, #d4a574, #b08050);"></div>
+        <div class="related-card-body">
+          <div class="related-card-name">Hamburguesa Completa</div>
+          <div class="related-card-price">$4.100</div>
+        </div>
+      </div>
+      <div class="related-card">
+        <div class="related-card-img" style="background: linear-gradient(135deg, #a0d0a0, #70a070);"></div>
+        <div class="related-card-body">
+          <div class="related-card-name">Papas con Cheddar</div>
+          <div class="related-card-price">$1.800</div>
+        </div>
+      </div>
+      <div class="related-card" onclick="location.href='site-detalle.html'">
+        <div class="related-card-img" style="background: linear-gradient(135deg, #c8a080, #a07040);"></div>
+        <div class="related-card-body">
+          <div class="related-card-name">Combo Clásico</div>
+          <div class="related-card-price">$4.200</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<nav class="bottom-nav">
+  <a href="site-home.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Inicio
+  </a>
+  <a href="site-catalogo.html" class="active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    Catálogo
+  </a>
+  <a href="site-carrito.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    Carrito
+  </a>
+</nav>
+
+<script>
+const qtyDisplay = document.getElementById('qtyDisplay');
+document.getElementById('qtyDec').addEventListener('click', () => {
+  let v = parseInt(qtyDisplay.textContent);
+  if (v > 1) qtyDisplay.textContent = v - 1;
+});
+document.getElementById('qtyInc').addEventListener('click', () => {
+  let v = parseInt(qtyDisplay.textContent);
+  qtyDisplay.textContent = v + 1;
+});
+function addToCart() {
+  const btn = document.querySelector('.btn-primary');
+  const orig = btn.textContent;
+  btn.textContent = '✓ Agregado';
+  btn.style.background = 'var(--success)';
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.style.background = '';
+  }, 1500);
+}
+</script>
+</body>
+</html>

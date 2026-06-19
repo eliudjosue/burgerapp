@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configuración — Burger House</title>
+<style>
+:root {
+  --bg: #f5f4f1; --surface: #ffffff; --fg: #1c1a17; --muted: #6b6760;
+  --border: #e5e1da; --accent: #d4532e; --accent-on: #ffffff;
+  --accent-soft: color-mix(in oklch, var(--accent) 14%, transparent);
+  --fg-soft: color-mix(in oklch, var(--fg) 6%, transparent);
+  --success: #1a9d5a; --success-soft: color-mix(in oklch, var(--success) 14%, transparent);
+  --danger: #d43a3a;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  --radius-sm: 8px; --radius-md: 12px; --radius-pill: 9999px;
+  --gutter: 12px;
+  --container: 800px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body);
+  font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; cursor: pointer; }
+img { max-width: 100%; }
+input, textarea, select {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-family: var(--font-body);
+  font-size: 14px; background: var(--surface); color: var(--fg);
+  transition: border-color 0.15s;
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+textarea { resize: vertical; min-height: 60px; }
+label { font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 3px; display: block; }
+.container { max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
+
+/* ─── top bar ─── */
+.topbar {
+  background: var(--fg); color: #fff; padding: 10px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 20;
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.topbar .back-to { display: flex; align-items: center; gap: 4px; color: rgba(255,255,255,0.5); font-size: 13px; background: none; border: none; text-decoration: none; }
+.topbar .back-to:hover { color: #fff; }
+.topbar-title { font-weight: 600; font-size: 16px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-user { font-size: 12px; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 6px; }
+.topbar-user .logout { color: rgba(255,255,255,0.3); text-decoration: underline; font-size: 12px; }
+
+/* ─── page header ─── */
+.page-header { padding: 20px 0 8px; }
+.page-header h1 { font-size: 22px; font-weight: 600; }
+.page-header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+/* ─── form cards ─── */
+.form-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 20px;
+  margin-bottom: 12px;
+}
+.form-card h2 {
+  font-size: 15px; font-weight: 600; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.form-row { display: grid; gap: 10px; margin-bottom: 8px; }
+@media (min-width: 640px) { .form-row { grid-template-columns: 1fr 1fr; } }
+.field { margin-bottom: 10px; }
+.hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* ─── logo upload ─── */
+.logo-upload { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.logo-preview {
+  width: 64px; height: 64px; border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #d4532e, #e87a3a);
+  display: grid; place-items: center; color: #fff;
+  font-size: 24px; font-weight: 800; flex-shrink: 0;
+}
+.logo-actions { display: flex; gap: 6px; }
+
+/* ─── banner preview ─── */
+.banner-preview {
+  width: 100%; height: 140px; border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #1c1a17, #3a322a);
+  display: grid; place-items: center;
+  color: rgba(255,255,255,0.2); font-family: var(--font-mono); font-size: 11px;
+  margin-bottom: 8px;
+}
+
+/* ─── buttons ─── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500; border: none; cursor: pointer;
+  transition: background 0.1s;
+}
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--accent); color: var(--accent-on); }
+.btn.primary:hover { background: color-mix(in oklch, var(--accent), black 10%); }
+.btn.outline { background: var(--surface); color: var(--fg); border: 1px solid var(--border); }
+.btn.outline:hover { border-color: var(--muted); }
+.btn.danger { background: transparent; color: var(--danger); border: 1px solid transparent; }
+.btn.large { padding: 12px 24px; font-size: 14px; }
+.btn-block { width: 100%; justify-content: center; }
+
+.actions-bar { display: flex; gap: 8px; padding: 16px 0; }
+@media (max-width: 639px) {
+  .actions-bar { flex-direction: column; }
+  .actions-bar .btn { width: 100%; justify-content: center; }
+}
+
+/* ─── tablet/desktop ─── */
+@media (min-width: 640px) { :root { --gutter: 20px; } }
+@media (min-width: 900px) { :root { --gutter: 24px; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="admin.html" class="back-to">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Panel admin
+    </a>
+    <span class="topbar-title">Configuración del sitio</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-user">
+      admin@burger.house
+      <a href="admin-login.html" class="logout">Salir</a>
+    </span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="page-header">
+    <h1>⚙️ Configuración del sitio</h1>
+    <p>Editá la información del negocio sin tocar código. Estos datos se muestran en el sitio público y en los comprobantes de pedido.</p>
+  </div>
+
+  <!-- Identidad -->
+  <div class="form-card">
+    <h2>🍔 Identidad del negocio</h2>
+    <div class="field">
+      <label>Logo del negocio</label>
+      <div class="logo-upload">
+        <div class="logo-preview">BH</div>
+        <div class="logo-actions">
+          <button class="btn outline" onclick="alert('Simulación: selector de archivos')">Cambiar imagen</button>
+          <button class="btn danger">Eliminar</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Nombre del negocio</label>
+        <input type="text" value="Burger House" />
+      </div>
+      <div class="field">
+        <label>Eslogan</label>
+        <input type="text" value="El sabor que merecés" placeholder="Opcional" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner -->
+  <div class="form-card">
+    <h2>🏠 Banner principal (Home)</h2>
+    <div class="field">
+      <label>Imagen de fondo</label>
+      <div class="banner-preview">[ Banner 1200×400px ]</div>
+      <button class="btn outline" onclick="alert('Simulación: selector de archivos')">Cambiar imagen</button>
+    </div>
+    <div class="field">
+      <label>Título</label>
+      <input type="text" value="Las mejores hamburguesas de la zona" />
+    </div>
+    <div class="field">
+      <label>Bajada</label>
+      <input type="text" value="Hacé tu pedido online y retiralo o recibilo en casa" />
+    </div>
+  </div>
+
+  <!-- Horarios -->
+  <div class="form-card">
+    <h2>🕐 Horarios de atención</h2>
+    <div class="field">
+      <label>Horarios (se muestra en Home y en el contacto)</label>
+      <input type="text" value="Lun a Sáb 18:00–23:30 · Dom 19:00–23:00" />
+      <div class="hint">Formato libre. Ej: "Lun a Vie 12:00–15:00 y 20:00–00:00 · Sáb 20:00–01:00"</div>
+    </div>
+  </div>
+
+  <!-- Contacto -->
+  <div class="form-card">
+    <h2>💬 Contacto</h2>
+    <div class="field">
+      <label>WhatsApp (con código de país, sin +)</label>
+      <input type="tel" value="5491123456789" placeholder="Ej: 5491123456789" />
+      <div class="hint">Se usa para el botón flotante de WhatsApp en el sitio público y el link en la confirmación de pedido.</div>
+    </div>
+  </div>
+
+  <!-- Transferencia -->
+  <div class="form-card">
+    <h2>🏦 Datos de transferencia bancaria</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Se muestran al cliente en el checkout cuando elige "Transferencia bancaria".</p>
+    <div class="form-row">
+      <div class="field">
+        <label>Alias</label>
+        <input type="text" value="burger.house.mp" placeholder="Ej: burger.house.mp" />
+      </div>
+      <div class="field">
+        <label>CBU / CVU (22 dígitos)</label>
+        <input type="text" value="0000003100012345678901" placeholder="0000003100012345678901" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Titular de la cuenta (opcional)</label>
+      <input type="text" value="Burger House SRL" />
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions-bar">
+    <button class="btn primary large" onclick="alert('✅ Cambios guardados correctamente')">Guardar cambios</button>
+    <button class="btn outline large" onclick="alert('Cambios descartados')">Descartar</button>
+  </div>
+</div>
+</body>
+</html>

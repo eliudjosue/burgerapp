@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Burger House — Pedido confirmado</title>
+<style>
+:root {
+  --accent: #FF6B1A; --accent-soft: #fff3ed; --accent-dark: #e05500;
+  --bg: #ffffff; --surface: #f8f7f5; --fg: #1a1a1a; --muted: #8a8a8a;
+  --border: #efefef; --success: #22c55e; --warn: #f59e0b; --danger: #ef4444;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --radius-sm: 8px; --radius-md: 16px; --radius-lg: 24px; --radius-pill: 9999px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--surface);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+.container{padding-inline:16px;max-width:600px;margin-inline:auto;flex:1;display:flex;flex-direction:column;justify-content:center}
+@media(min-width:768px){.container{padding-inline:24px}}
+
+.success-icon{width:80px;height:80px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;margin:40px auto 20px}
+.success-icon svg{width:40px;height:40px;color:var(--accent)}
+h1{font-size:26px;font-weight:700;text-align:center;margin-bottom:4px}
+.sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px}
+
+.order-number{border:2px dashed var(--border);border-radius:var(--radius-md);padding:20px;text-align:center;margin-bottom:20px}
+.order-number .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px}
+.order-number .num{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:0.04em;color:var(--accent)}
+
+.detail-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:12px}
+.detail-card h3{font-size:14px;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.detail-row{display:flex;justify-content:space-between;padding:3px 0;font-size:13px}
+.detail-row.total{font-weight:700;font-size:16px;padding-top:8px;margin-top:6px;border-top:1px solid var(--border)}
+.detail-row .label{color:var(--muted)}
+.detail-row .value{text-align:right}
+
+.transfer-info{background:var(--accent-soft);border:1px solid var(--accent);border-radius:var(--radius-md);padding:16px;margin-bottom:12px}
+.transfer-info h4{font-size:14px;font-weight:600;margin-bottom:6px;color:var(--accent)}
+.transfer-info p{font-size:13px;margin-bottom:4px;color:var(--fg)}
+.transfer-info .data{font-family:ui-monospace,'JetBrains Mono',monospace;font-size:13px;background:var(--bg);padding:8px;border-radius:var(--radius-sm);margin-top:6px}
+
+.actions{display:flex;flex-direction:column;gap:10px;padding-bottom:40px}
+.actions .btn-primary{padding:14px;border-radius:var(--radius-pill);background:var(--accent);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}
+.actions .btn-secondary{padding:14px;border-radius:var(--radius-pill);background:var(--bg);color:var(--fg);border:1px solid var(--border);font-size:15px;font-weight:500;cursor:pointer;text-align:center;text-decoration:none}
+
+@media(min-width:768px){
+  .order-number .num{font-size:40px}
+  .detail-card{padding:20px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="success-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  </div>
+  <h1>¡Pedido confirmado!</h1>
+  <p class="sub">Tu pedido ya está en nuestra cocina. Te notificaremos cuando esté listo.</p>
+
+  <div class="order-number">
+    <div class="label">Número de pedido</div>
+    <div class="num">#BH-0421</div>
+  </div>
+
+  <div class="detail-card">
+    <h3>Detalle del pedido</h3>
+    <div class="detail-row"><span class="label">2× Clásica Burger</span><span class="value">$5,600</span></div>
+    <div class="detail-row"><span class="label">1× Mega Combo</span><span class="value">$4,500</span></div>
+    <div class="detail-row"><span class="label">1× Coca-Cola 500ml</span><span class="value">$800</span></div>
+    <div class="detail-row"><span class="label">Envío</span><span class="value">$0</span></div>
+    <div class="detail-row total"><span class="label">Total</span><span class="value">$10,900</span></div>
+  </div>
+
+  <div class="detail-card">
+    <h3>Tipo de entrega</h3>
+    <div class="detail-row"><span class="label">Retiro en local</span><span class="value">📍 Av. Corrientes 1234</span></div>
+  </div>
+
+  <div class="detail-card">
+    <h3>Método de pago</h3>
+    <div class="detail-row"><span class="label">Efectivo</span><span class="value">💰 Al retirar</span></div>
+  </div>
+
+  <div class="transfer-info">
+    <h4>🏦 Transferencia bancaria</h4>
+    <p>Para agilizar, podés transferirnos antes de venir. Usá estos datos:</p>
+    <div class="data">
+      <strong>Alias:</strong> burger.house.mp<br>
+      <strong>CBU:</strong> 0000003100012345678901<br>
+      <strong>Titular:</strong> Burger House S.A.
+    </div>
+    <p style="margin-top:8px;font-size:12px;color:var(--muted)">Mostrando como ejemplo — visible solo si el método de pago es Transferencia</p>
+  </div>
+
+  <p style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:16px">
+    Guardá tu número de pedido para consultar el estado
+  </p>
+
+  <div class="actions">
+    <a href="site-estado.html" class="btn-primary">Seguir mi pedido</a>
+    <a href="site-home.html" class="btn-secondary">Volver al inicio</a>
+  </div>
+</div>
+</body>
+</html>

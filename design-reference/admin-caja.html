@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caja — Burger House</title>
+<style>
+:root {
+  --bg: #f5f4f1; --surface: #ffffff; --fg: #1c1a17; --muted: #6b6760;
+  --border: #e5e1da; --accent: #d4532e; --accent-on: #ffffff;
+  --accent-soft: color-mix(in oklch, var(--accent) 14%, transparent);
+  --fg-soft: color-mix(in oklch, var(--fg) 6%, transparent);
+  --success: #1a9d5a; --success-soft: color-mix(in oklch, var(--success) 14%, transparent);
+  --warn: #e09d1a; --warn-soft: color-mix(in oklch, var(--warn) 14%, transparent);
+  --danger: #d43a3a; --danger-soft: color-mix(in oklch, var(--danger) 14%, transparent);
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  --radius-sm: 8px; --radius-md: 12px; --radius-pill: 9999px;
+  --gutter: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body);
+  font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; cursor: pointer; }
+.container { max-width: 1400px; margin-inline: auto; padding-inline: var(--gutter); }
+
+/* ─── top bar ─── */
+.topbar {
+  background: var(--fg); color: #fff; padding: 8px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 20;
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.topbar .back-to { display: flex; align-items: center; gap: 4px; color: rgba(255,255,255,0.5); font-size: 12px; background: none; border: none; text-decoration: none; }
+.topbar .back-to:hover { color: #fff; }
+.topbar-title { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.topbar-badge { background: var(--accent); color: var(--accent-on); padding: 1px 7px; border-radius: var(--radius-pill); font-family: var(--font-mono); font-size: 10px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-user { font-size: 11px; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 6px; }
+.topbar-user .logout { color: rgba(255,255,255,0.3); text-decoration: underline; font-size: 11px; }
+
+/* ─── tabs ─── */
+.tabs {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border);
+  background: var(--surface); overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.tab {
+  flex-shrink: 0; padding: 10px 16px; font-size: 12px; font-weight: 500;
+  color: var(--muted); border: none; background: none;
+  border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap;
+  transition: color 0.1s;
+}
+.tab:hover { color: var(--fg); }
+.tab.active { color: var(--fg); border-bottom-color: var(--accent); }
+.tab .badge-count {
+  display: inline-block; margin-left: 4px; padding: 0 6px;
+  border-radius: var(--radius-pill); background: var(--accent-soft);
+  color: var(--accent); font-family: var(--font-mono); font-size: 10px;
+}
+
+/* ─── pending urgent section ─── */
+.section-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted); padding: 12px 0 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label .urgent-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.pending-row {
+  display: flex; gap: 8px; padding: 10px 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent); border-radius: var(--radius-sm);
+  margin-bottom: 6px; align-items: center;
+}
+.pending-row:hover { background: var(--accent-soft); }
+.pending-row .info { flex: 1; min-width: 0; }
+.pending-row .info .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pending-row .info .num { font-weight: 700; font-size: 15px; }
+.pending-row .info .client { font-size: 13px; color: var(--muted); }
+.pending-row .info .time { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+.pending-row .info .items { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.pending-row .total { font-weight: 700; font-size: 16px; white-space: nowrap; }
+.pending-row .actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+.btn {
+  padding: 7px 14px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600; border: none; cursor: pointer;
+  transition: background 0.1s; white-space: nowrap;
+}
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--accent); color: var(--accent-on); }
+.btn.primary:hover { background: color-mix(in oklch, var(--accent), black 10%); }
+.btn.success { background: var(--success); color: #fff; }
+.btn.success:hover { background: color-mix(in oklch, var(--success), black 10%); }
+.btn.warn { background: var(--warn); color: #fff; }
+.btn.outline { background: var(--surface); color: var(--fg); border: 1px solid var(--border); }
+.btn.outline:hover { border-color: var(--muted); }
+.btn.danger { background: var(--danger); color: #fff; }
+.btn.small { padding: 4px 10px; font-size: 11px; }
+.btn.ghost { background: transparent; color: var(--muted); border: none; padding: 4px 8px; }
+
+/* ─── filter chips ─── */
+.filters { display: flex; gap: 6px; padding: 10px 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.filter-chip {
+  flex-shrink: 0; padding: 5px 12px; border-radius: var(--radius-pill);
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 11px; font-weight: 500; cursor: pointer; white-space: nowrap; color: var(--muted);
+  transition: all 0.1s;
+}
+.filter-chip:hover { border-color: var(--accent); color: var(--fg); }
+.filter-chip.active { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
+
+/* ─── order table ─── */
+.table-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); overflow-x: auto;
+}
+.order-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.order-table th {
+  text-align: left; padding: 10px 12px; font-family: var(--font-mono);
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); border-bottom: 1px solid var(--border);
+  background: var(--fg-soft); white-space: nowrap;
+}
+.order-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.order-table tr:hover td { background: var(--fg-soft); }
+.order-table tr.pending-row-hl td { background: var(--accent-soft); }
+.order-table .num { font-weight: 600; }
+.order-table .time { font-family: var(--font-mono); font-size: 10px; color: var(--muted); display: block; margin-top: 1px; }
+.order-table .client-name { font-weight: 500; }
+.order-table .client-phone { font-family: var(--font-mono); font-size: 11px; color: var(--muted); display: block; }
+.order-table .items-sm { color: var(--muted); font-size: 12px; }
+
+.badge-sm {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 8px; border-radius: var(--radius-pill);
+  font-family: var(--font-mono); font-size: 10px; font-weight: 500; white-space: nowrap;
+}
+.badge-sm.success { background: var(--success-soft); color: #0a6a3a; }
+.badge-sm.warn { background: var(--warn-soft); color: #8a6a0a; }
+.badge-sm.danger { background: var(--danger-soft); color: #8a1a1a; }
+.badge-sm.muted { background: var(--fg-soft); color: var(--muted); }
+.badge-sm.accent { background: var(--accent-soft); color: var(--accent); }
+
+/* ─── mobile card view ─── */
+@media (max-width: 639px) {
+  .order-table thead { display: none; }
+  .order-table, .order-table tbody, .order-table tr, .order-table td { display: block; }
+  .order-table tr {
+    padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); margin-bottom: 8px; background: var(--surface);
+  }
+  .order-table td {
+    padding: 3px 0; border: none;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .order-table td[data-label]::before {
+    content: attr(data-label); font-family: var(--font-mono); font-size: 10px;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .order-table tr:hover td { background: transparent; }
+
+  .pending-row { flex-direction: column; align-items: stretch; gap: 6px; }
+  .pending-row .info .top { flex-wrap: wrap; }
+  .pending-row .actions { justify-content: stretch; }
+  .pending-row .actions .btn { flex: 1; text-align: center; }
+}
+
+/* ─── tablet ─── */
+@media (min-width: 640px) {
+  :root { --gutter: 16px; }
+  .tab { padding: 10px 20px; font-size: 13px; }
+}
+
+@media (min-width: 900px) {
+  :root { --gutter: 20px; }
+  .pending-row { padding: 12px 16px; }
+  .tabs { justify-content: center; }
+}
+
+@media (min-width: 1280px) {
+  .order-table td, .order-table th { padding: 12px 16px; }
+  .order-table { font-size: 14px; }
+  .pending-row .info .num { font-size: 17px; }
+}
+
+/* ─── empty state ─── */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 16px; color: var(--muted); gap: 6px; }
+.empty-state svg { width: 32px; height: 32px; opacity: 0.2; }
+.empty-state p { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="back-to">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Proyectos
+    </a>
+    <span class="topbar-title">
+      Caja
+      <span class="topbar-badge">4 pedidos</span>
+    </span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-user">
+      caja@burger.house
+      <a href="admin-login.html" class="logout">Salir</a>
+    </span>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-filter="all">Todos <span class="badge-count">4</span></button>
+  <button class="tab" data-filter="pending">Pendientes <span class="badge-count">2</span></button>
+  <button class="tab" data-filter="preparing">En preparación <span class="badge-count">1</span></button>
+  <button class="tab" data-filter="ready">Listos <span class="badge-count">1</span></button>
+  <button class="tab" data-filter="delivering">En entrega <span class="badge-count">0</span></button>
+</div>
+
+<div class="container">
+
+  <!-- ═══ PENDING URGENT SECTION ═══ -->
+  <div class="section-label">
+    <span class="urgent-dot"></span>
+    Pendientes de confirmar
+  </div>
+
+  <div class="pending-row" data-order="1039" data-filter="pending">
+    <div class="info">
+      <div class="top">
+        <span class="num">#1039</span>
+        <span class="client">María García</span>
+        <span class="time">hace 2 min</span>
+      </div>
+      <div class="items">1× Clásica, 1× Papas con Cheddar</div>
+    </div>
+    <div class="total">$5.000</div>
+    <div class="actions">
+      <button class="btn primary small" onclick="confirmOrder(this)">Confirmar</button>
+      <button class="btn outline small" onclick="viewOrder(this)">Ver</button>
+    </div>
+  </div>
+
+  <div class="pending-row" data-order="1038" data-filter="pending">
+    <div class="info">
+      <div class="top">
+        <span class="num">#1038</span>
+        <span class="client">Juan Pérez</span>
+        <span class="time">hace 5 min</span>
+      </div>
+      <div class="items">2× Clásica, 1× Papas, 2× Coca-Cola</div>
+    </div>
+    <div class="total">$9.400</div>
+    <div class="actions">
+      <button class="btn primary small" onclick="confirmOrder(this)">Confirmar</button>
+      <button class="btn outline small" onclick="viewOrder(this)">Ver</button>
+      <button class="btn ghost small" onclick="cancelOrder(this)" style="color:var(--danger);">✕</button>
+    </div>
+  </div>
+
+  <!-- ═══ FILTERS ═══ -->
+  <div class="filters">
+    <span class="filter-chip active">Todos</span>
+    <span class="filter-chip">Pago pendiente</span>
+    <span class="filter-chip">Transferencia</span>
+    <span class="filter-chip">Mercado Pago</span>
+    <span class="filter-chip">Efectivo</span>
+  </div>
+
+  <!-- ═══ ORDER TABLE ═══ -->
+  <div class="table-wrap">
+    <table class="order-table" id="orderTable">
+      <thead>
+        <tr>
+          <th>Pedido</th>
+          <th>Cliente</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Pago</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-order="1039" data-filter="pending">
+          <td data-label="Pedido"><span class="num">#1039</span><span class="time">19:42</span></td>
+          <td data-label="Cliente"><span class="client-name">María G.</span><span class="client-phone">11 9876-5432</span></td>
+          <td data-label="Items" class="items-sm">1× Clásica, 1× Papas</td>
+          <td data-label="Total"><strong>$5.000</strong></td>
+          <td data-label="Pago"><span class="badge-sm warn">Transf. pendiente</span></td>
+          <td data-label="Estado"><span class="badge-sm accent">Nuevo</span></td>
+          <td data-label="Acción"><button class="btn primary small" onclick="confirmOrder(this)">Confirmar</button></td>
+        </tr>
+        <tr data-order="1038" data-filter="pending">
+          <td data-label="Pedido"><span class="num">#1038</span><span class="time">19:39</span></td>
+          <td data-label="Cliente"><span class="client-name">Juan P.</span><span class="client-phone">11 2345-6789</span></td>
+          <td data-label="Items" class="items-sm">2× Clásica, 1× Papas, 2× Coca</td>
+          <td data-label="Total"><strong>$9.400</strong></td>
+          <td data-label="Pago"><span class="badge-sm muted">Efectivo</span></td>
+          <td data-label="Estado"><span class="badge-sm accent">Nuevo</span></td>
+          <td data-label="Acción"><button class="btn primary small" onclick="confirmOrder(this)">Confirmar</button></td>
+        </tr>
+        <tr data-order="1035" data-filter="preparing" class="pending-row-hl">
+          <td data-label="Pedido"><span class="num">#1035</span><span class="time">19:36</span></td>
+          <td data-label="Cliente"><span class="client-name">Lucía M.</span><span class="client-phone">11 5555-6666</span></td>
+          <td data-label="Items" class="items-sm">1× Completa, 2× Papas</td>
+          <td data-label="Total"><strong>$7.700</strong></td>
+          <td data-label="Pago"><span class="badge-sm warn">Transf. pendiente</span></td>
+          <td data-label="Estado"><span class="badge-sm accent">Preparando</span></td>
+          <td data-label="Acción"><button class="btn success small" onclick="confirmPayment(this)">✓ Confirmar pago</button></td>
+        </tr>
+        <tr data-order="1034" data-filter="preparing">
+          <td data-label="Pedido"><span class="num">#1034</span><span class="time">19:30</span></td>
+          <td data-label="Cliente"><span class="client-name">Ana M.</span><span class="client-phone">11 7777-8888</span></td>
+          <td data-label="Items" class="items-sm">2× Clásica, 1× Papas, 2× Coca</td>
+          <td data-label="Total"><strong>$9.400</strong></td>
+          <td data-label="Pago"><span class="badge-sm success">MP · Pagado</span></td>
+          <td data-label="Estado"><span class="badge-sm accent">Preparando</span></td>
+          <td data-label="Acción"><span style="font-size:11px;color:var(--muted);">—</span></td>
+        </tr>
+        <tr data-order="1032" data-filter="ready">
+          <td data-label="Pedido"><span class="num">#1032</span><span class="time">19:15</span></td>
+          <td data-label="Cliente"><span class="client-name">María L.</span><span class="client-phone">11 1111-2222</span></td>
+          <td data-label="Items" class="items-sm">1× Veggie, 1× Sprite</td>
+          <td data-label="Total"><strong>$3.700</strong></td>
+          <td data-label="Pago"><span class="badge-sm success">MP · Pagado</span></td>
+          <td data-label="Estado"><span class="badge-sm success">Listo</span></td>
+          <td data-label="Acción"><button class="btn success small" onclick="startDelivery(this)">Iniciar entrega</button></td>
+        </tr>
+        <tr data-order="1030" data-filter="delivering">
+          <td data-label="Pedido"><span class="num">#1030</span><span class="time">18:45</span></td>
+          <td data-label="Cliente"><span class="client-name">Pedro S.</span><span class="client-phone">11 3333-4444</span></td>
+          <td data-label="Items" class="items-sm">1× Doble Cheese, 2× Coca</td>
+          <td data-label="Total"><strong>$5.800</strong></td>
+          <td data-label="Pago"><span class="badge-sm success">Efectivo · Pagado</span></td>
+          <td data-label="Estado"><span class="badge-sm accent">En camino</span></td>
+          <td data-label="Acción"><button class="btn success small" onclick="markDelivered(this)">Marcar entregado</button></td>
+        </tr>
+        <tr data-order="1028" data-filter="delivering">
+          <td data-label="Pedido"><span class="num">#1028</span><span class="time">18:20</span></td>
+          <td data-label="Cliente"><span class="client-name">Laura D.</span><span class="client-phone">11 9999-0000</span></td>
+          <td data-label="Items" class="items-sm">1× Combo Clásico</td>
+          <td data-label="Total"><strong>$5.000</strong></td>
+          <td data-label="Pago"><span class="badge-sm muted">Retiro local</span></td>
+          <td data-label="Estado"><span class="badge-sm muted">Esperando</span></td>
+          <td data-label="Acción"><button class="btn success small" onclick="markDelivered(this)">Entregar</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+function moveRow(row, statusFilter) {
+  row.dataset.filter = statusFilter;
+  applyFilters();
+}
+
+function applyFilters() {
+  const activeTab = document.querySelector('.tab.active');
+  const filter = activeTab ? activeTab.dataset.filter : 'all';
+  const rows = document.querySelectorAll('#orderTable tbody tr');
+  rows.forEach(row => {
+    const rowFilter = row.dataset.filter;
+    row.style.display = (filter === 'all' || rowFilter === filter) ? '' : 'none';
+  });
+  // also update pending section visibility
+  const pendingRows = document.querySelectorAll('.pending-row');
+  pendingRows.forEach(row => {
+    const rowFilter = row.dataset.filter;
+    row.style.display = (filter === 'all' || filter === 'pending') ? '' : 'none';
+  });
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    applyFilters();
+  });
+});
+
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', function() {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+function confirmOrder(btn) {
+  const row = btn.closest('.pending-row, tr');
+  const num = row.dataset.order;
+  showAlert('✓ Pedido #' + num + ' confirmado — enviado a cocina');
+  row.dataset.filter = 'preparing';
+  applyFilters();
+  updateBadgeCounts();
+}
+
+function viewOrder(btn) {
+  const row = btn.closest('.pending-row');
+  const num = row.dataset.order;
+  showAlert('📋 Pedido #' + num + ' — ver detalle en panel completo');
+}
+
+function cancelOrder(btn) {
+  if (!confirm('Cancelar este pedido?')) return;
+  const row = btn.closest('.pending-row, tr');
+  row.style.display = 'none';
+  showAlert('✕ Pedido cancelado');
+  updateBadgeCounts();
+}
+
+function confirmPayment(btn) {
+  const row = btn.closest('tr');
+  row.querySelector('.badge-sm.warn').outerHTML = '<span class="badge-sm success">Transferencia · OK</span>';
+  btn.outerHTML = '<span style="font-size:11px;color:var(--success);font-weight:500;">✓ Pagado</span>';
+  showAlert('✓ Pago confirmado');
+}
+
+function startDelivery(btn) {
+  const row = btn.closest('tr');
+  row.dataset.filter = 'delivering';
+  row.querySelector('.badge-sm.success').outerHTML = '<span class="badge-sm accent">En camino</span>';
+  const statusCell = row.querySelector('td:nth-child(6) .badge-sm');
+  if (statusCell) statusCell.outerHTML = '<span class="badge-sm accent">En camino</span>';
+  btn.outerHTML = '<button class="btn success small" onclick="markDelivered(this)">Marcar entregado</button>';
+  showAlert('🚚 Pedido en camino');
+  applyFilters();
+  updateBadgeCounts();
+}
+
+function markDelivered(btn) {
+  const row = btn.closest('tr');
+  row.dataset.filter = 'done';
+  btn.outerHTML = '<span style="font-size:11px;color:var(--success);font-weight:500;">✓ Entregado</span>';
+  showAlert('✓ Pedido entregado');
+  setTimeout(() => { row.style.opacity = '0.5'; }, 500);
+  updateBadgeCounts();
+}
+
+function updateBadgeCounts() {
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    const filter = tab.dataset.filter;
+    const allRows = document.querySelectorAll('#orderTable tbody tr');
+    const count = Array.from(allRows).filter(r => {
+      if (filter === 'all') return true;
+      return r.dataset.filter === filter;
+    }).length;
+    const badge = tab.querySelector('.badge-count');
+    if (badge) badge.textContent = count;
+  });
+}
+
+function showAlert(msg) {
+  const existing = document.querySelector('.toast-alert');
+  if (existing) existing.remove();
+  const div = document.createElement('div');
+  div.className = 'toast-alert';
+  div.textContent = msg;
+  Object.assign(div.style, {
+    position: 'fixed', bottom: '20px', right: '20px', zIndex: '100',
+    background: 'var(--fg)', color: '#fff', padding: '10px 18px',
+    borderRadius: 'var(--radius-sm)', fontSize: '13px', fontWeight: '500',
+    boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+    animation: 'slideIn 0.25s ease'
+  });
+  document.body.appendChild(div);
+  setTimeout(() => { div.style.opacity = '0'; div.style.transition = 'opacity 0.2s'; setTimeout(() => div.remove(), 200); }, 3000);
+}
+</script>
+</body>
+</html>

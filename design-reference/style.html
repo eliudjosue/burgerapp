@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema de diseño — Hamburguesería</title>
+<style>
+:root {
+  --bg: #faf9f6;
+  --surface: #ffffff;
+  --fg: #1c1a17;
+  --muted: #6b6760;
+  --border: #e5e1da;
+  --accent: #d4532e;
+  --accent-on: #ffffff;
+  --accent-soft: color-mix(in oklch, var(--accent) 14%, transparent);
+  --fg-soft: color-mix(in oklch, var(--fg) 6%, transparent);
+  --success: #1a9d5a;
+  --warn: #e09d1a;
+  --danger: #d43a3a;
+  --success-soft: color-mix(in oklch, var(--success) 14%, transparent);
+  --warn-soft: color-mix(in oklch, var(--warn) 14%, transparent);
+  --danger-soft: color-mix(in oklch, var(--danger) 14%, transparent);
+
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+
+  --fs-h1: clamp(36px, 5vw, 56px);
+  --fs-h2: clamp(26px, 3.5vw, 40px);
+  --fs-h3: 20px;
+  --fs-body: 16px;
+  --fs-sm: 14px;
+  --fs-xs: 12px;
+  --fs-2xs: 11px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+
+  --container: 1200px;
+  --gutter-desktop: 24px;
+  --gutter-tablet: 20px;
+  --gutter-phone: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: var(--accent); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; }
+h1 { font-size: var(--fs-h1); line-height: 1.1; letter-spacing: -0.02em; }
+h2 { font-size: var(--fs-h2); line-height: 1.15; letter-spacing: -0.015em; }
+h3 { font-size: var(--fs-h3); line-height: 1.3; letter-spacing: -0.005em; }
+p { text-wrap: pretty; }
+
+/* ─── layout ─── */
+.container { max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter-phone); }
+@media (min-width: 768px) { .container { padding-inline: var(--gutter-tablet); } }
+@media (min-width: 1024px) { .container { padding-inline: var(--gutter-desktop); } }
+
+.section { padding-block: clamp(40px, 6vw, 80px); }
+.grid-2 { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+.grid-3 { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+.grid-4 { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+@media (min-width: 560px) { .grid-2 { grid-template-columns: repeat(2, 1fr); gap: var(--space-5); } }
+@media (min-width: 640px) { .grid-3 { grid-template-columns: repeat(2, 1fr); gap: var(--space-5); } }
+@media (min-width: 768px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 768px) { .grid-4 { grid-template-columns: repeat(2, 1fr); gap: var(--space-5); } }
+@media (min-width: 1024px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
+
+/* ─── style guide page chrome ─── */
+.sg-header {
+  background: var(--fg); color: var(--bg); padding: var(--space-8) var(--gutter-phone);
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+}
+.sg-header h1 { font-family: var(--font-display); color: var(--bg); margin: 0 0 var(--space-2); }
+.sg-section { padding: var(--space-8) var(--gutter-phone); border-bottom: 1px solid var(--border); }
+.sg-section h2 { font-size: 20px; margin-bottom: var(--space-5); color: var(--fg); }
+.sg-label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: var(--space-2); }
+.sg-row { display: flex; flex-wrap: wrap; gap: var(--space-5); margin-bottom: var(--space-6); align-items: flex-start; }
+.sg-col { display: flex; flex-direction: column; gap: var(--space-2); }
+
+/* ─── color swatches ─── */
+.swatch { width: 120px; }
+.swatch-box { height: 60px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: var(--space-2); }
+.swatch-label { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.swatch-name { font-size: var(--fs-sm); font-weight: 600; }
+
+/* ─── type samples ─── */
+.type-row { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4) 0; border-bottom: 1px solid var(--border); }
+.type-name { font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.type-sample-display { font-family: var(--font-display); font-weight: 600; }
+.type-sample-body { font-family: var(--font-body); }
+.type-sample-mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ─── buttons ─── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 18px; border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: 15px; font-weight: 500;
+  transition: background 0.15s, border-color 0.15s, transform 0.05s;
+  cursor: pointer; white-space: nowrap;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
+.btn-primary:hover { background: color-mix(in oklch, var(--accent), black 10%); }
+.btn-secondary { background: transparent; color: var(--fg); border-color: var(--border); }
+.btn-secondary:hover { border-color: var(--fg); }
+.btn-ghost { background: transparent; color: var(--fg); border-color: transparent; }
+.btn-ghost:hover { color: var(--accent); }
+.btn-large { padding: 14px 28px; font-size: 17px; border-radius: var(--radius-sm); }
+.btn-block { width: 100%; justify-content: center; }
+.btn-icon { width: 44px; height: 44px; padding: 0; justify-content: center; border-radius: var(--radius-sm); }
+
+/* ─── cards ─── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: var(--space-5);
+}
+.card-product {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); overflow: hidden;
+  cursor: pointer; transition: box-shadow 0.15s;
+}
+.card-product:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.card-product-img { width: 100%; aspect-ratio: 16/10; object-fit: cover; display: block; background: var(--fg-soft); }
+.card-product-body { padding: var(--space-3) var(--space-4) var(--space-4); }
+.card-product-name { font-weight: 600; font-size: 16px; margin-bottom: 2px; }
+.card-product-desc { font-size: 13px; color: var(--muted); margin-bottom: var(--space-2); }
+.card-product-price { font-weight: 600; font-size: 18px; color: var(--accent); }
+.card-product .btn { margin-top: var(--space-3); }
+
+/* ─── inputs ─── */
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 13px; color: var(--muted); font-weight: 500; }
+.input, .textarea {
+  width: 100%; padding: 11px 14px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--surface); color: var(--fg);
+  font: inherit; font-size: 15px; transition: border-color 0.15s;
+}
+.input:focus, .textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.select {
+  width: 100%; padding: 11px 14px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--surface); color: var(--fg);
+  font: inherit; font-size: 15px;
+  appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236b6760' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+}
+
+/* ─── status badges ─── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: var(--radius-pill);
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.03em; text-transform: uppercase;
+}
+.badge-success { background: var(--success-soft); color: var(--success); }
+.badge-warn { background: var(--warn-soft); color: var(--warn); }
+.badge-danger { background: var(--danger-soft); color: var(--danger); }
+.badge-muted { background: var(--fg-soft); color: var(--muted); }
+.badge-accent { background: var(--accent-soft); color: var(--accent); }
+
+/* ─── order card (panel) ─── */
+.order-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: var(--space-4);
+  border-left: 4px solid var(--border);
+  display: flex; flex-direction: column; gap: var(--space-2);
+}
+.order-card.is-confirmed { border-left-color: var(--warn); }
+.order-card.is-preparing { border-left-color: var(--accent); }
+.order-card.is-ready { border-left-color: var(--success); }
+.order-card.is-delivering { border-left-color: var(--accent); }
+.order-card.is-delivered { border-left-color: var(--success); opacity: 0.8; }
+.order-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.order-card-num { font-weight: 600; font-size: var(--fs-body); }
+.order-card-time { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.order-card-items { font-size: var(--fs-sm); color: var(--muted); }
+.order-card-total { font-weight: 600; font-size: 18px; }
+.order-card-actions { display: flex; gap: var(--space-2); margin-top: var(--space-2); }
+.order-card-actions .btn { flex: 1; justify-content: center; }
+
+/* ─── bottom nav ─── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: var(--surface); border-top: 1px solid var(--border);
+  display: flex; height: 60px;
+}
+.bottom-nav a {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; font-size: 10px; color: var(--muted); text-decoration: none;
+  transition: color 0.15s;
+}
+.bottom-nav a.active { color: var(--accent); }
+.bottom-nav a svg { width: 22px; height: 22px; }
+@media (min-width: 1024px) { .bottom-nav { display: none; } }
+
+/* ─── cart bar (sticky on mobile) ─── */
+.cart-bar {
+  position: fixed; bottom: 60px; left: 0; right: 0; z-index: 99;
+  background: var(--fg); color: var(--bg); padding: var(--space-3) var(--space-4);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cart-bar-count { font-size: var(--fs-sm); display: flex; align-items: center; gap: var(--space-2); }
+.cart-bar-count strong { font-size: 18px; }
+.cart-bar-total { font-weight: 600; font-size: 18px; }
+.cart-bar .btn { background: var(--accent); color: var(--accent-on); border: none; padding: 8px 20px; font-size: 14px; }
+@media (min-width: 1024px) { .cart-bar { display: none; } }
+
+/* ─── page header ─── */
+.page-header { padding: var(--space-4) var(--gutter-phone); background: var(--bg); }
+.page-header-inner { display: flex; align-items: center; justify-content: space-between; max-width: var(--container); margin-inline: auto; }
+.page-header-logo { font-family: var(--font-display); font-weight: 600; font-size: 20px; color: var(--fg); }
+.page-header-back { display: flex; align-items: center; gap: var(--space-2); color: var(--muted); font-size: 14px; cursor: pointer; background: none; border: none; }
+@media (min-width: 768px) { .page-header { padding: var(--space-4) var(--gutter-tablet); } }
+@media (min-width: 1024px) { .page-header { padding: var(--space-6) var(--gutter-desktop); } }
+
+/* ─── desktop nav ─── */
+.desktop-nav { display: none; }
+@media (min-width: 1024px) {
+  .desktop-nav { display: flex; align-items: center; gap: var(--space-6); }
+  .desktop-nav a { color: var(--muted); font-size: 15px; text-decoration: none; }
+  .desktop-nav a:hover, .desktop-nav a.active { color: var(--fg); }
+}
+
+/* ─── product detail ─── */
+.prod-detail-img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: var(--radius-md); background: var(--fg-soft); }
+.prod-detail-info { padding: var(--space-4) 0; }
+.prod-detail-name { font-size: 28px; font-weight: 600; margin-bottom: var(--space-2); }
+.prod-detail-desc { color: var(--muted); font-size: var(--fs-sm); margin-bottom: var(--space-4); }
+.prod-detail-price { font-size: 32px; font-weight: 600; color: var(--accent); margin-bottom: var(--space-5); }
+.prod-detail-qty { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-5); }
+.qty-btn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); display: grid; place-items: center; cursor: pointer; font-size: 20px; }
+.qty-num { font-size: 20px; font-weight: 600; min-width: 24px; text-align: center; }
+
+/* ─── cart items ─── */
+.cart-item { display: flex; gap: var(--space-3); padding: var(--space-4) 0; border-bottom: 1px solid var(--border); }
+.cart-item-img { width: 72px; height: 72px; border-radius: var(--radius-sm); object-fit: cover; flex-shrink: 0; background: var(--fg-soft); }
+.cart-item-info { flex: 1; min-width: 0; }
+.cart-item-name { font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+.cart-item-desc { font-size: 12px; color: var(--muted); }
+.cart-item-meta { display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-2); }
+.cart-item-qty { display: flex; align-items: center; gap: var(--space-2); }
+.cart-item-qty button { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: grid; place-items: center; font-size: 14px; }
+.cart-item-qty span { font-size: 15px; font-weight: 600; min-width: 16px; text-align: center; }
+.cart-item-price { font-weight: 600; color: var(--accent); }
+.cart-total-row { display: flex; justify-content: space-between; padding: var(--space-4) 0; font-weight: 600; font-size: 18px; }
+.cart-total-row:last-child { border-top: 2px solid var(--fg); margin-top: var(--space-2); }
+
+/* ─── checkout summary ─── */
+.checkout-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-5); }
+.checkout-card + .checkout-card { margin-top: var(--space-4); }
+.checkout-card h3 { font-size: 16px; margin-bottom: var(--space-4); }
+
+/* ─── order status timeline ─── */
+.timeline { display: flex; flex-direction: column; gap: 0; padding: 0; }
+.timeline-step { display: flex; gap: var(--space-3); padding: var(--space-3) 0; }
+.timeline-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  background: var(--border); margin-top: 5px; position: relative; }
+.timeline-step.is-active .timeline-dot { background: var(--accent); }
+.timeline-step.is-done .timeline-dot { background: var(--success); }
+.timeline-step + .timeline-step .timeline-dot::before { content: ''; position: absolute; top: -20px; left: 4px; width: 2px; height: 20px; background: var(--border); }
+.timeline-step.is-done + .timeline-step .timeline-dot::before,
+.timeline-step.is-active + .timeline-step .timeline-dot::before { background: var(--success); }
+.timeline-info { display: flex; flex-direction: column; }
+.timeline-label { font-weight: 500; font-size: 15px; }
+.timeline-time { font-size: 12px; color: var(--muted); }
+
+/* ─── admin tabs ─── */
+.admin-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.admin-tab { padding: var(--space-3) var(--space-5); font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; background: none; border-top: 0; border-left: 0; border-right: 0; }
+.admin-tab.active { color: var(--fg); border-bottom-color: var(--accent); }
+.admin-tab:hover { color: var(--fg); }
+
+/* ─── admin table ─── */
+.adm-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.adm-table th { text-align: left; padding: var(--space-3) var(--space-3); font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+.adm-table td { padding: var(--space-3); border-bottom: 1px solid var(--border); }
+.adm-table tr:hover td { background: var(--fg-soft); }
+
+/* ─── admin dashboard ─── */
+.dash-stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-5); }
+.dash-stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-1); }
+.dash-stat-value { font-size: 32px; font-weight: 600; }
+.dash-stat-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ─── responsive helpers ─── */
+.show-desktop { display: none; }
+@media (min-width: 1024px) { .show-desktop { display: block; } }
+.show-mobile { display: block; }
+@media (min-width: 1024px) { .show-mobile { display: none; } }
+
+/* ─── section spacing ─── */
+.sg-section + .sg-section { border-top: 0; }
+</style>
+</head>
+<body>
+
+<div class="sg-header">
+  <div class="container">
+    <h1>Sistema de diseño</h1>
+    <p style="color: var(--muted);">Hamburguesería — Paleta, tipografía, componentes y estados</p>
+  </div>
+</div>
+
+<!-- ─── COLOR ─── -->
+<section class="sg-section">
+  <div class="container">
+    <h2>Paleta de colores</h2>
+    <div class="sg-row">
+      <div class="swatch">
+        <div class="swatch-box" style="background: var(--bg);"></div>
+        <div class="swatch-name">--bg</div>
+        <div class="swatch-label">#faf9f6 · Fondo de página</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-box" style="background: var(--surface);"></div>
+        <div class="swatch-name">--surface</div>
+        <div class="swatch-label">#ffffff · Superficie elevada</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-box" style="background: var(--fg);"></div>
+        <div class="swatch-name">--fg</div>
+        <div class="swatch-label">#1c1a17 · Texto principal</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-box" style="background: var(--muted);"></div>
+        <div class="swatch-name">--muted</div>
+        <div class="swatch-label">#6b6760 · Texto secundario</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-box" style="background: var(--border);"></div>
+        <div class="swatch-name">--border</div>
+        <div class="swatch-label">#e5e1da · Bordes</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-box" style="background: var(--accent);"></div>
+        <div class="swatch-name">--accent</div>
+        <div class="swatch-label">#d4532e · CTAs, links</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-box" style="background: var(--success);"></div>
+        <div class="swatch-name">--success</div>
+        <div class="swatch-label">#1a9d5a · Pago OK, listo</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-box" style="background: var(--warn);"></div>
+        <div class="swatch-name">--warn</div>
+        <div class="swatch-label">#e09d1a · Pendiente</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-box" style="background: var(--danger);"></div>
+        <div class="swatch-name">--danger</div>
+        <div class="swatch-label">#d43a3a · Cancelado, error</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TYPOGRAPHY ─── -->
+<section class="sg-section">
+  <div class="container">
+    <h2>Tipografía</h2>
+    <p class="sg-label" style="margin-bottom: var(--space-4);">Display: Inter 600 · Body: Inter 400 · Mono: JetBrains Mono</p>
+
+    <div class="type-row">
+      <span class="type-name">H1 · clamp(36px, 5vw, 56px)</span>
+      <span class="type-sample-display" style="font-size: var(--fs-h1);">Las mejores hamburguesas de la zona</span>
+    </div>
+    <div class="type-row">
+      <span class="type-name">H2 · clamp(26px, 3.5vw, 40px)</span>
+      <span class="type-sample-display" style="font-size: var(--fs-h2);">Nuestras categorías</span>
+    </div>
+    <div class="type-row">
+      <span class="type-name">H3 · 20px</span>
+      <span class="type-sample-display" style="font-size: var(--fs-h3);">Hamburguesa Clásica</span>
+    </div>
+    <div class="type-row">
+      <span class="type-name">Body · 16px / 1.55</span>
+      <span class="type-sample-body">Con carne vacuna premium, queso cheddar, lechuga fresca, tomate y nuestra salsa especial. Acompañada de papas rústicas.</span>
+    </div>
+    <div class="type-row">
+      <span class="type-name">Small · 14px</span>
+      <span class="type-sample-body" style="font-size: var(--fs-sm); color: var(--muted);">Seleccioná tu zona de delivery · Delivery en 30-45 min</span>
+    </div>
+    <div class="type-row">
+      <span class="type-name">Mono · 12px</span>
+      <span class="type-sample-mono">ESTADO · #1234 · $5.200</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BUTTONS ─── -->
+<section class="sg-section">
+  <div class="container">
+    <h2>Botones</h2>
+
+    <p class="sg-label">Variantes</p>
+    <div class="sg-row">
+      <button class="btn btn-primary">Agregar al pedido</button>
+      <button class="btn btn-secondary">Ver más</button>
+      <button class="btn btn-ghost">Cancelar</button>
+    </div>
+
+    <p class="sg-label">Tamaños</p>
+    <div class="sg-row">
+      <button class="btn btn-primary btn-large">Hacer pedido</button>
+      <button class="btn btn-primary">Normal</button>
+      <button class="btn btn-primary" style="padding: 6px 12px; font-size: 13px;">Chico</button>
+    </div>
+
+    <p class="sg-label">Full-width (mobile)</p>
+    <div class="sg-row" style="flex-direction: column; max-width: 360px;">
+      <button class="btn btn-primary btn-large btn-block">Confirmar pedido</button>
+      <button class="btn btn-secondary btn-large btn-block">Seguir comprando</button>
+    </div>
+
+    <p class="sg-label">Icon button (thumbs target)</p>
+    <div class="sg-row">
+      <button class="btn btn-icon btn-secondary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h16"/></svg>
+      </button>
+      <button class="btn btn-icon btn-secondary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PRODUCT CARDS ─── -->
+<section class="sg-section">
+  <div class="container">
+    <h2>Tarjetas de producto</h2>
+    <p class="sg-label">Mobile (full-width) · Desktop (in grid)</p>
+    <div class="grid-3" style="max-width: 900px;">
+      <div class="card-product">
+        <div class="card-product-img" style="background: linear-gradient(135deg, #e8d5c0, #d4a574); display: grid; place-items: center; color: rgba(0,0,0,0.2); font-family: var(--font-mono); font-size: 11px;">
+          [ Foto ]
+        </div>
+        <div class="card-product-body">
+          <div class="card-product-name">Hamburguesa Clásica</div>
+          <div class="card-product-desc">Carne, cheddar, lechuga, tomate, salsa especial</div>
+          <div class="card-product-price">$3.200</div>
+          <button class="btn btn-primary" style="width: 100%;">Agregar</button>
+        </div>
+      </div>
+      <div class="card-product">
+        <div class="card-product-img" style="background: linear-gradient(135deg, #c8a080, #b08050);"></div>
+        <div class="card-product-body">
+          <div class="card-product-name">Combo Doble</div>
+          <div class="card-product-desc">2 hamburguesas + papas + 2 bebidas</div>
+          <div class="card-product-price">$5.800</div>
+          <button class="btn btn-primary" style="width: 100%;">Agregar</button>
+        </div>
+      </div>
+      <div class="card-product">
+        <div class="card-product-img" style="background: linear-gradient(135deg, #a0d0a0, #70a070);"></div>
+        <div class="card-product-body">
+          <div class="card-product-name">Papas con Cheddar</div>
+          <div class="card-product-desc">Papas rústicas con cheddar y bacon</div>
+          <div class="card-product-price">$1.800</div>
+          <button class="btn btn-primary" style="width: 100%;">Agregar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BADGES ─── -->
+<section class="sg-section">
+  <div class="container">
+    <h2>Badges de estado</h2>
+    <div class="sg-row">
+      <span class="badge badge-success">Entregado</span>
+      <span class="badge badge-warn">Pendiente de pago</span>
+      <span class="badge badge-danger">Cancelado</span>
+      <span class="badge badge-muted">Retiro</span>
+      <span class="badge badge-accent">Delivery</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ORDER CARDS (PANEL) ─── -->
+<section class="sg-section">
+  <div class="container">
+    <h2>Tarjetas de pedido (panel)</h2>
+    <p class="sg-label">Cocina / Caja — vista mobile y tablet</p>
+    <div class="grid-2" style="max-width: 700px;">
+      <div class="order-card is-preparing">
+        <div class="order-card-header">
+          <span class="order-card-num">#1034</span>
+          <span class="order-card-time">Hace 8 min</span>
+        </div>
+        <span class="badge badge-accent" style="align-self: flex-start;">Preparando</span>
+        <div class="order-card-items">1x Clásica · 1x Combo Doble · 1x Papas</div>
+        <div class="order-card-total">$8.200</div>
+        <div class="order-card-actions">
+          <button class="btn btn-primary">Listo</button>
+        </div>
+      </div>
+      <div class="order-card is-confirmed">
+        <div class="order-card-header">
+          <span class="order-card-num">#1035</span>
+          <span class="order-card-time">Hace 3 min</span>
+        </div>
+        <span class="badge badge-warn" style="align-self: flex-start;">Confirmado</span>
+        <div class="order-card-items">1x Hamburguesa Clásica · 2x Papas</div>
+        <div class="order-card-total">$5.000</div>
+        <div class="order-card-actions">
+          <button class="btn btn-primary">Preparar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── INPUTS ─── -->
+<section class="sg-section">
+  <div class="container">
+    <h2>Formularios</h2>
+    <div style="max-width: 400px; display: flex; flex-direction: column; gap: var(--space-4);">
+      <div class="field">
+        <label>Nombre completo</label>
+        <input class="input" placeholder="Ej: Juan Pérez" />
+      </div>
+      <div class="field">
+        <label>Teléfono</label>
+        <input class="input" placeholder="11 2345-6789" type="tel" />
+      </div>
+      <div class="field">
+        <label>Dirección</label>
+        <input class="input" placeholder="Calle y número" />
+      </div>
+      <div class="field">
+        <label>Zona de delivery</label>
+        <select class="select">
+          <option>Seleccioná tu zona</option>
+          <option>Centro — $500</option>
+          <option>Barrio Norte — $800</option>
+          <option>Belgrano — $1.000</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Comentarios (opcional)</label>
+        <textarea class="textarea" placeholder="Ej: sin cebolla, extra salsa"></textarea>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── RESPONSIVE GRID ─── -->
+<section class="sg-section">
+  <div class="container">
+    <h2>Grilla responsive</h2>
+    <p class="sg-label">Redimensioná el navegador</p>
+    <div class="grid-4" style="margin-bottom: var(--space-4);">
+      <div style="background: var(--accent-soft); border-radius: var(--radius-sm); padding: var(--space-6); text-align: center; font-size: 13px; color: var(--accent);">1</div>
+      <div style="background: var(--accent-soft); border-radius: var(--radius-sm); padding: var(--space-6); text-align: center; font-size: 13px; color: var(--accent);">2</div>
+      <div style="background: var(--accent-soft); border-radius: var(--radius-sm); padding: var(--space-6); text-align: center; font-size: 13px; color: var(--accent);">3</div>
+      <div style="background: var(--accent-soft); border-radius: var(--radius-sm); padding: var(--space-6); text-align: center; font-size: 13px; color: var(--accent);">4</div>
+    </div>
+    <p style="font-size: 12px; color: var(--muted);">
+      1 col ≤560px · 2 cols 560-768 · 3 cols 768-1024 · 4 cols ≥1024
+    </p>
+  </div>
+</section>
+
+<footer style="padding: var(--space-8); text-align: center; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border);">
+  Sistema de diseño — Hamburguesería · Mobile-first · PedidosYa/Rappi inspirado
+</footer>
+</body>
+</html>
