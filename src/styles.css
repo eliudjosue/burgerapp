@@ -52,29 +52,21 @@
 }
 
 @utility bg-accent-soft {
-  background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
-}
-
-@utility text-accent {
-  color: var(--color-accent);
-}
-
-@utility text-muted {
-  color: var(--color-muted);
+  background-color: color-mix(in oklch, var(--color-accent) 10%, transparent);
 }
 
 @utility bg-success-soft {
-  background-color: color-mix(in srgb, var(--color-success) 10%, transparent);
+  background-color: color-mix(in oklch, var(--color-success) 10%, transparent);
 }
 
 @utility bg-warn-soft {
-  background-color: color-mix(in srgb, var(--color-warn) 10%, transparent);
+  background-color: color-mix(in oklch, var(--color-warn) 10%, transparent);
 }
 
 @utility bg-danger-soft {
-  background-color: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  background-color: color-mix(in oklch, var(--color-danger) 10%, transparent);
 }
 
 @utility bg-accent-on-soft {
-  background-color: color-mix(in srgb, var(--color-accent-on) 10%, transparent);
+  background-color: color-mix(in oklch, var(--color-accent-on) 10%, transparent);
 }
