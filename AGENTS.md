@@ -46,6 +46,15 @@
    se haya mencionado un commit, y nunca debe asumir que el trabajo actual
    está "seguro" solo porque existe en el filesystem — si no está
    commiteado, no hay forma de recuperarlo ante un error.
+8. **El agente nunca elimina un test que falla como forma de resolver el
+   error.** Si un test no pasa, la causa se diagnostica y se corrige (ya
+   sea el código de producción o la configuración del test, como
+   providers faltantes en `TestBed`). Si el agente no puede resolverlo,
+   debe explicar el error real (mensaje completo, no resumido) y esperar
+   indicación antes de decidir qué hacer con ese test. Borrar tests para
+   que el proyecto "compile" contradice directamente el propósito de
+   `strict_tdd: true` y reduce silenciosamente la cobertura sin que la
+   persona se entere, salvo que lo revise explícitamente.
 
 ## 1. Stack técnico
 
@@ -64,30 +73,65 @@
 - **Pagos**: Mercado Pago Checkout Pro (link de pago externo + webhook),
   no Checkout API/Bricks en esta fase.
 
-## 2. Traducción de `style.md` a Tailwind
+## 2. Traducción de `style.md` a Tailwind (v4)
 
-Como Tailwind ya está configurado, los tokens de `style.md` deben
-reflejarse en `tailwind.config.js` (sección `theme.extend`), no quedar
-sueltos como variables CSS. Concretamente:
+El proyecto usa **Tailwind CSS v4** (`tailwindcss` + `@tailwindcss/postcss`
+en `package.json`). La configuración de tema en v4 es distinta a v3: **no
+se usa un archivo `tailwind.config.js` con `theme.extend`** como mecanismo
+principal — se usa la directiva `@theme` directamente en el archivo CSS
+global (`src/styles.css`), junto al `@import 'tailwindcss';` que ya existe
+ahí.
 
-- Los colores de la sección 1 de `style.md` (`--bg`, `--accent`,
-  `--success`, etc.) deben mapearse a `theme.extend.colors` con esos
-  mismos nombres (ej: `colors: { accent: '#d4532e', success: '#1a9d5a', ... }`),
-  para poder usarlos como `bg-accent`, `text-success`, etc.
-- La escala de espaciado de la sección 3 puede usarse directamente con
-  la escala nativa de Tailwind si los valores coinciden razonablemente
-  (4, 8, 12, 16... ya son los múltiplos default de Tailwind en píxeles
-  equivalentes); si no coinciden, extender `theme.extend.spacing`.
-- Los radios de la sección 4 (`--radius-sm`, `--radius-md`, etc.) van en
-  `theme.extend.borderRadius`.
+Concretamente, los tokens de `style.md` deben reflejarse así:
+
+```css
+@import 'tailwindcss';
+
+@theme {
+  --color-bg: #faf9f6;
+  --color-surface: #ffffff;
+  --color-fg: #1c1a17;
+  --color-muted: #6b6760;
+  --color-border: #e5e1da;
+  --color-accent: #d4532e;
+  --color-accent-on: #ffffff;
+  --color-success: #1a9d5a;
+  --color-warn: #e09d1a;
+  --color-danger: #d43a3a;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --font-display: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, system-ui, sans-serif;
+}
+```
+
+- Cada variable `--color-*` definida en `@theme` genera automáticamente
+  las utilidades de Tailwind correspondientes (`bg-accent`, `text-accent`,
+  `border-accent`, etc.) — no hace falta declararlas aparte.
+- Para variantes "soft" (`--accent-soft`, etc. en `style.md`), si Tailwind
+  v4 no las genera automáticamente como utilidad, definirlas como
+  utilidades custom con `@utility` en el mismo `styles.css`, o como clase
+  CSS directa usando `color-mix()`.
+- Las clases "semánticas" que se vieron usadas en el primer componente
+  (`h1`, `h2`, `h3`, `body`, `small`) **no son utilidades nativas de
+  Tailwind** y deben definirse explícitamente con `@utility` en
+  `styles.css` si se quieren seguir usando así, o reemplazarse por
+  combinaciones de utilidades nativas de Tailwind (`text-4xl font-semibold
+  tracking-tight`, etc.). No asumir que existen sin haberlas definido — si
+  aparecen en un template sin estar definidas en ningún lado, no van a
+  aplicar ningún estilo aunque el componente compile y los tests pasen.
 - Los breakpoints de la sección 6 de `style.md` (639px, 768-900px, 1024px)
-  deben verificarse contra los breakpoints default de Tailwind (`sm`,
-  `md`, `lg`) y ajustarse en `theme.extend.screens` si no coinciden
-  exactamente — no asumir que los breakpoints default alcanzan sin
-  revisarlo.
-- Antes de escribir el primer componente, generar/actualizar
-  `tailwind.config.js` con esta paleta y avisar que se hizo, para que se
-  pueda revisar antes de seguir.
+  pueden necesitar definirse con `@theme` también (`--breakpoint-*`) si no
+  coinciden con los breakpoints default de Tailwind v4 (`sm`, `md`, `lg`,
+  `xl`) — no asumir que coinciden sin revisarlo.
+- **Antes de seguir escribiendo componentes que usan clases de color o
+  tipografía custom, confirmar primero que `src/styles.css` tiene el
+  bloque `@theme` con todos los tokens de `style.md` ya declarados.** Si
+  no está, ese es el primer paso a hacer, avisando explícitamente que se
+  hizo, antes de continuar con cualquier componente nuevo.
 
 ## 3. Estructura de carpetas esperada (Angular)
 

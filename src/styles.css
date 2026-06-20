@@ -1,3 +1,80 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+@theme {
+  --color-bg: #faf9f6;
+  --color-surface: #ffffff;
+  --color-fg: #1c1a17;
+  --color-muted: #6b6760;
+  --color-border: #e5e1da;
+  --color-accent: #d4532e;
+  --color-accent-on: #ffffff;
+  --color-success: #1a9d5a;
+  --color-warn: #e09d1a;
+  --color-danger: #d43a3a;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --font-display: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, system-ui, sans-serif;
+}
+
+@utility h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+@utility h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+@utility h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.33;
+}
+
+@utility body {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+@utility small {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.43;
+}
+
+@utility bg-accent-soft {
+  background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+@utility text-accent {
+  color: var(--color-accent);
+}
+
+@utility text-muted {
+  color: var(--color-muted);
+}
+
+@utility bg-success-soft {
+  background-color: color-mix(in srgb, var(--color-success) 10%, transparent);
+}
+
+@utility bg-warn-soft {
+  background-color: color-mix(in srgb, var(--color-warn) 10%, transparent);
+}
+
+@utility bg-danger-soft {
+  background-color: color-mix(in srgb, var(--color-danger) 10%, transparent);
+}
+
+@utility bg-accent-on-soft {
+  background-color: color-mix(in srgb, var(--color-accent-on) 10%, transparent);
+}

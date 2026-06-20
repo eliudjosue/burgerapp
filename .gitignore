@@ -44,3 +44,6 @@ __screenshots__/
 Thumbs.db
 # Local Pi runtime state
 .atl/
+.claude
+.pi
+.agents
