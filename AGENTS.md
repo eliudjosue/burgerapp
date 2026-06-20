@@ -1,59 +1,3 @@
-You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
-
-## TypeScript Best Practices
-
-- Use strict type checking
-- Prefer type inference when the type is obvious
-- Avoid the `any` type; use `unknown` when type is uncertain
-
-## Angular Best Practices
-
-- Always use standalone components over NgModules
-- Must NOT set `standalone: true` inside Angular decorators. It's the default in Angular v20+.
-- Use signals for state management
-- Implement lazy loading for feature routes
-- Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
-- Use `NgOptimizedImage` for all static images.
-  - `NgOptimizedImage` does not work for inline base64 images.
-
-## Accessibility Requirements
-
-- It MUST pass all AXE checks.
-- It MUST follow all WCAG AA minimums, including focus management, color contrast, and ARIA attributes.
-
-### Components
-
-- Keep components small and focused on a single responsibility
-- Use `input()` and `output()` functions instead of decorators
-- Use `computed()` for derived state
-- Set `changeDetection: ChangeDetectionStrategy.OnPush` in `@Component` decorator
-- Prefer inline templates for small components
-- Prefer Reactive forms instead of Template-driven ones
-- Do NOT use `ngClass`, use `class` bindings instead
-- Do NOT use `ngStyle`, use `style` bindings instead
-- When using external templates/styles, use paths relative to the component TS file.
-
-## State Management
-
-- Use signals for local component state
-- Use `computed()` for derived state
-- Keep state transformations pure and predictable
-- Do NOT use `mutate` on signals, use `update` or `set` instead
-
-## Templates
-
-- Keep templates simple and avoid complex logic
-- Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
-- Use the async pipe to handle observables
-- Do not assume globals like (`new Date()`) are available.
-
-## Services
-
-- Design services around a single responsibility
-- Use the `providedIn: 'root'` option for singleton services
-- Use the `inject()` function instead of constructor injection
-
-
 # AGENTS.md — Guía de trabajo para el agente de desarrollo
 
 > Este documento define CÓMO debe trabajar el agente en este repositorio.
@@ -85,6 +29,23 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 5. Si en `design-reference/` aparecen archivos que no estén listados en
    la sección 6 de este documento (por ejemplo restos de iteraciones
    viejas), ignorarlos — no usarlos como referencia de implementación.
+6. **El agente nunca ejecuta comandos destructivos o irreversibles sin
+   confirmación explícita previa de la persona**, en particular (lista no
+   exhaustiva): `git reset --hard`, `git clean`, borrado de archivos o
+   carpetas, sobrescritura de `openspec/config.yaml` u otros archivos de
+   configuración del proceso, cualquier comando que descarte cambios no
+   commiteados. Si el agente considera que alguna de estas acciones es
+   necesaria, debe explicar qué hace, qué se perdería, y esperar una
+   confirmación clara de "sí, hacelo" antes de ejecutarla — nunca asumir
+   que una instrucción ambigua (como pegar un comando de terminal en el
+   chat para pedir ayuda a interpretarlo) es una autorización para
+   ejecutar acciones destructivas.
+7. **Disciplina de git obligatoria**: la persona hace `git commit` después
+   de cada avance aprobado, antes de pedir el siguiente cambio. El agente
+   debe recordar esto si nota que pasó un tiempo largo de trabajo sin que
+   se haya mencionado un commit, y nunca debe asumir que el trabajo actual
+   está "seguro" solo porque existe en el filesystem — si no está
+   commiteado, no hay forma de recuperarlo ante un error.
 
 ## 1. Stack técnico
 
