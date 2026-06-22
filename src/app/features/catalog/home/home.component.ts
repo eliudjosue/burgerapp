@@ -1,15 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { HeaderComponent } from '../../../shared/components/header/header.component';
-import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { mockBannerData, mockCategories, mockFeaturedProducts, mockSiteSettings } from '../../../core/mock-data';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, HeaderComponent, FooterComponent],
+  imports: [RouterLink],
   template: `
-    <app-header></app-header>
     <main class="container mx-auto px-4 py-8">
       <!-- Banner Principal -->
       <section class="text-center mb-16">
@@ -92,7 +89,6 @@ import { mockBannerData, mockCategories, mockFeaturedProducts, mockSiteSettings 
         </a>
       </section>
     </main>
-    <app-footer></app-footer>
   `
 })
 export class HomeComponent {

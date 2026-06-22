@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ProductCard } from './product-card.component';
 import { CommonModule } from '@angular/common';
+import { mockAllProducts, mockCategories } from '../../core/mock-data';
 
 interface Product {
   id: string;
@@ -65,124 +66,8 @@ interface Category {
 })
 export class Catalog {
   // Mock data (in a real app this would come from a service)
-  products: Product[] = [
-    {
-      id: '1',
-      name: 'Hamburguesa Clásica',
-      description: 'Pan, carne, lechuga, tomate, cebolla, queso',
-      price: 1200,
-      isActive: true,
-      categoryId: 'hamburguesas',
-      imageUrl: 'https://placehold.co/600x400?text=Hamburguesa+Clasica'
-    },
-    {
-      id: '2',
-      name: 'Hamburguesa Doble',
-      description: 'Pan, 2 carnes, lechuga, tomate, cebolla, queso',
-      price: 1800,
-      isActive: true,
-      categoryId: 'hamburguesas',
-      imageUrl: 'https://placehold.co/600x400?text=Hamburguesa+Doble'
-    },
-    {
-      id: '3',
-      name: 'Hamburguesa Veggie',
-      description: 'Pan, hinojo, lechuga, tomate, cebolla, queso vegano',
-      price: 1400,
-      isActive: true,
-      categoryId: 'hamburguesas',
-      imageUrl: 'https://placehold.co/600x400?text=Hamburguesa+Veggie'
-    },
-    {
-      id: '4',
-      name: 'Papas Fritas',
-      description: 'Papas fritas crujientes',
-      price: 800,
-      isActive: false,
-      categoryId: 'acompañamientos',
-      imageUrl: 'https://placehold.co/600x400?text=Papas+Fritas'
-    },
-    {
-      id: '5',
-      name: 'Papas al Ajo',
-      description: 'Papas fritas con ajo y hierbas',
-      price: 900,
-      isActive: true,
-      categoryId: 'acompañamientos',
-      imageUrl: 'https://placehold.co/600x400?text=Papas+al+Ajo'
-    },
-    {
-      id: '6',
-      name: 'Agua Mineral',
-      description: 'Botella de agua mineral',
-      price: 500,
-      isActive: true,
-      categoryId: 'bebidas',
-      imageUrl: 'https://placehold.co/600x400?text=Agua+Mineral'
-    },
-    {
-      id: '7',
-      name: 'Coca Cola',
-      description: 'Botella de Coca-Cola 1L',
-      price: 700,
-      isActive: true,
-      categoryId: 'bebidas',
-      imageUrl: 'https://placehold.co/600x400?text=Coca+Cola'
-    },
-    {
-      id: '8',
-      name: 'Combo Familiar',
-      description: 'Hamburguesa doble + papas + bebida',
-      price: 2800,
-      isActive: true,
-      categoryId: 'combos',
-      imageUrl: 'https://placehold.co/600x400?text=Combo+Familiar',
-      isCombo: true,
-      comboItems: [
-        { productId: '2', quantity: 1 },
-        { productId: '5', quantity: 1 },
-        { productId: '7', quantity: 1 }
-      ]
-    },
-    {
-      id: '9',
-      name: 'Combo Vegetariano',
-      description: 'Hamburguesa veggie + papas + bebida',
-      price: 2100,
-      isActive: true,
-      categoryId: 'combos',
-      imageUrl: 'https://placehold.co/600x400?text=Combo+Vegetariano',
-      isCombo: true,
-      comboItems: [
-        { productId: '3', quantity: 1 },
-        { productId: '5', quantity: 1 },
-        { productId: '7', quantity: 1 }
-      ]
-    }
-  ];
-
-  categories: Category[] = [
-    {
-      id: 'hamburguesas',
-      name: 'Hamburguesas',
-      description: 'Hamburguesas de la casa'
-    },
-    {
-      id: 'acompañamientos',
-      name: 'Acompañamientos',
-      description: 'Acompañamientos y accesorios'
-    },
-    {
-      id: 'bebidas',
-      name: 'Bebidas',
-      description: 'Bebidas y refrescos'
-    },
-    {
-      id: 'combos',
-      name: 'Combos',
-      description: 'Combos especiales'
-    }
-  ];
+  products = mockAllProducts;
+  categories = mockCategories;
 
   // Signals for reactive data
   selectedCategory = signal<string>('');

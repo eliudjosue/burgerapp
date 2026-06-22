@@ -1,5 +1,6 @@
-import { Component, input } from '@angular/core';
+import { Component, input, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CartService } from '../../core/services/cart.service';
 
 interface Product {
   id: string;
@@ -31,7 +32,7 @@ interface Product {
         <p class="small text-muted mb-2">{{ product().description }}</p>
         <div class="flex justify-between items-center">
           <span class="text-lg font-semibold text-accent">$ {{ product().price }}</span>
-          <button class="px-4 py-2 bg-accent text-accent-on rounded-md text-sm font-medium hover:bg-accent/90 transition-colors">
+          <button (click)="addToCart()" class="px-4 py-2 bg-accent text-accent-on rounded-md text-sm font-medium hover:bg-accent/90 transition-colors">
             Agregar
           </button>
         </div>
@@ -46,4 +47,13 @@ interface Product {
 })
 export class ProductCard {
   product = input.required<Product>();
+  private readonly cartService = inject(CartService);
+
+  addToCart(): void {
+    // Agregar el producto al carrito con cantidad 1
+    console.log(`Agregando al carrito: ${this.product().name}`);
+    this.cartService.addItem(this.product(), 1);
+    console.log('DESPUÉS', this.cartService.items());
+
+  }
 }
