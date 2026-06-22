@@ -7,10 +7,11 @@ Supabase dashboard → SQL Editor. Mark each row after running it.
 
 | # | File | Contents | Executed |
 |---|---|---|---|
-| 1 | `001_helpers.sql` | `set_updated_at()` trigger + `generate_order_number()` | ☐ |
-| 2 | `002_schema.sql` | All 9 tables in dependency order | ☐ |
-| 3 | `003_rls.sql` | `get_staff_role()` helper + RLS enable + all policies | ☐ |
-| 4 | `004_tracking_function.sql` | `get_order_for_tracking()` RPC + GRANT | ☐ |
+| 1 | `001_helpers.sql` | `set_updated_at()` trigger + `generate_order_number()` | ✓ |
+| 2 | `002_schema.sql` | All 9 tables in dependency order | ✓ |
+| 3 | `003_rls.sql` | `get_staff_role()` helper + RLS enable + all policies | ✓ |
+| 4 | `004_tracking_function.sql` | `get_order_for_tracking()` RPC + GRANT | ✓ |
+| 5 | `005_seed_data.sql` | Initial catalog data (4 categories, 9 products, 6 combo_items) | ☐ |
 
 ## Idempotency
 
@@ -20,6 +21,7 @@ Supabase dashboard → SQL Editor. Mark each row after running it.
 | `002_schema.sql` | ✓ — uses `CREATE TABLE IF NOT EXISTS` |
 | `003_rls.sql` | Partial — functions yes; policies NO (`CREATE POLICY` has no `IF NOT EXISTS`). Re-running fails with "policy already exists". Drop the specific policy first if you need to recreate it. |
 | `004_tracking_function.sql` | ✓ — uses `CREATE OR REPLACE FUNCTION` |
+| `005_seed_data.sql` | ✓ — skips if products table is not empty |
 
 ## RLS summary
 
