@@ -12,6 +12,7 @@ Supabase dashboard → SQL Editor. Mark each row after running it.
 | 3 | `003_rls.sql` | `get_staff_role()` helper + RLS enable + all policies | ✓ |
 | 4 | `004_tracking_function.sql` | `get_order_for_tracking()` RPC + GRANT | ✓ |
 | 5 | `005_seed_data.sql` | Initial catalog data (4 categories, 9 products, 6 combo_items) | ☐ |
+| 6 | `006_update_site_settings.sql` | Placeholder content for the single `site_settings` row | ☐ |
 
 ## Idempotency
 
@@ -22,6 +23,7 @@ Supabase dashboard → SQL Editor. Mark each row after running it.
 | `003_rls.sql` | Partial — functions yes; policies NO (`CREATE POLICY` has no `IF NOT EXISTS`). Re-running fails with "policy already exists". Drop the specific policy first if you need to recreate it. |
 | `004_tracking_function.sql` | ✓ — uses `CREATE OR REPLACE FUNCTION` |
 | `005_seed_data.sql` | ✓ — skips if products table is not empty |
+| `006_update_site_settings.sql` | ✓ — UPDATE on id = 1 is always safe to re-run |
 
 ## RLS summary
 
