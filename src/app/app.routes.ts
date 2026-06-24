@@ -9,6 +9,7 @@ import { ComingSoonComponent } from './shared/components/coming-soon/coming-soon
 import { StaffLoginComponent } from './features/staff/login/staff-login.component';
 import { StaffDashboardComponent } from './features/staff/staff-dashboard.component';
 import { KitchenComponent } from './features/staff/kitchen/kitchen.component';
+import { CashierComponent } from './features/staff/cashier/cashier.component';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 
@@ -25,5 +26,6 @@ export const routes: Routes = [
   { path: 'staff/login', component: StaffLoginComponent },
   { path: 'staff', component: StaffDashboardComponent, canActivate: [authGuard] },
   { path: 'staff/kitchen', component: KitchenComponent, canActivate: [roleGuard(['kitchen', 'admin'])] },
+  { path: 'staff/cashier', component: CashierComponent, canActivate: [roleGuard(['cashier', 'admin'])] },
   { path: '**', redirectTo: '' },
 ];
