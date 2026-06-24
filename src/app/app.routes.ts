@@ -6,6 +6,9 @@ import { CheckoutComponent } from './features/checkout/checkout.component';
 import { OrderConfirmationComponent } from './features/order/order-confirmation/order-confirmation.component';
 import { ProductDetailComponent } from './features/catalog/product-detail/product-detail.component';
 import { ComingSoonComponent } from './shared/components/coming-soon/coming-soon.component';
+import { StaffLoginComponent } from './features/staff/login/staff-login.component';
+import { StaffDashboardComponent } from './features/staff/staff-dashboard.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -15,9 +18,9 @@ export const routes: Routes = [
   { path: 'checkout', component: CheckoutComponent },
   { path: 'order-confirmation', component: OrderConfirmationComponent },
   { path: 'product/:id', component: ProductDetailComponent },
-  // Temporary placeholder routes — replace with real implementations
-  // (track: business.md section 2.1, staff/login: business.md section 2.5)
+  // Temporary placeholder — replace with real tracking screen (business.md section 2.1)
   { path: 'track', component: ComingSoonComponent },
-  { path: 'staff/login', component: ComingSoonComponent },
-  { path: '**', redirectTo: '' }
+  { path: 'staff/login', component: StaffLoginComponent },
+  { path: 'staff', component: StaffDashboardComponent, canActivate: [authGuard] },
+  { path: '**', redirectTo: '' },
 ];
