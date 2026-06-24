@@ -8,7 +8,9 @@ import { ProductDetailComponent } from './features/catalog/product-detail/produc
 import { ComingSoonComponent } from './shared/components/coming-soon/coming-soon.component';
 import { StaffLoginComponent } from './features/staff/login/staff-login.component';
 import { StaffDashboardComponent } from './features/staff/staff-dashboard.component';
+import { KitchenComponent } from './features/staff/kitchen/kitchen.component';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -22,5 +24,6 @@ export const routes: Routes = [
   { path: 'track', component: ComingSoonComponent },
   { path: 'staff/login', component: StaffLoginComponent },
   { path: 'staff', component: StaffDashboardComponent, canActivate: [authGuard] },
+  { path: 'staff/kitchen', component: KitchenComponent, canActivate: [roleGuard(['kitchen', 'admin'])] },
   { path: '**', redirectTo: '' },
 ];
