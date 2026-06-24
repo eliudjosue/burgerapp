@@ -23,6 +23,7 @@ export interface Category {
 export interface ComboItem {
   productId: string;
   quantity: number;
+  name?: string;
 }
 
 export interface Product {

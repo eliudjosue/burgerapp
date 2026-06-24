@@ -1,29 +1,17 @@
-import { Component, signal, inject, computed } from '@angular/core';
+import { Component, signal, inject, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CartService } from '../../core/services/cart.service';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
-
-interface DeliveryZone {
-  id: string;
-  name: string;
-  cost: number;
-}
-
-const mockZones: DeliveryZone[] = [
-  { id: 'centro', name: 'Centro', cost: 500 },
-  { id: 'norte', name: 'Barrio Norte', cost: 800 },
-  { id: 'sur', name: 'Barrio Sur', cost: 800 },
-  { id: 'oeste', name: 'Barrio Oeste', cost: 1000 },
-];
+import { OrderService, DeliveryZone } from '../../core/services/order.service';
 
 @Component({
   selector: 'app-checkout',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, RouterLink, CurrencyPipe],
   template: `
     <div class="max-w-6xl mx-auto px-4 py-8">
-      @if (this.cartService.isEmpty()) {
+      @if (cartService.isEmpty()) {
         <div class="bg-surface border border-border rounded-md p-8 text-center">
           <h2 class="h2 mb-4">Tu carrito está vacío</h2>
           <p class="text-muted mb-6">No tienes productos en tu carrito.</p>
@@ -48,17 +36,19 @@ const mockZones: DeliveryZone[] = [
                       name="customerName"
                       [(ngModel)]="formData.customerName"
                       required
+                      autocomplete="name"
                       class="border border-border rounded-sm p-3 w-full focus:ring-2 focus:ring-accent-soft focus:border-accent"
                     >
                   </div>
                   <div>
                     <label for="phone" class="text-small font-medium text-muted block mb-1">Teléfono *</label>
                     <input
-                      type="text"
+                      type="tel"
                       id="phone"
                       name="phone"
                       [(ngModel)]="formData.phone"
                       required
+                      autocomplete="tel"
                       class="border border-border rounded-sm p-3 w-full focus:ring-2 focus:ring-accent-soft focus:border-accent"
                     >
                   </div>
@@ -107,26 +97,31 @@ const mockZones: DeliveryZone[] = [
                         name="address"
                         [(ngModel)]="formData.address"
                         required
+                        autocomplete="street-address"
                         class="border border-border rounded-sm p-3 w-full focus:ring-2 focus:ring-accent-soft focus:border-accent"
                       >
                     </div>
                     <div>
                       <label for="deliveryZone" class="text-small font-medium text-muted block mb-1">Zona de delivery *</label>
-                      <select
-                        id="deliveryZone"
-                        name="deliveryZone"
-                        [(ngModel)]="formData.deliveryZone"
-                        (ngModelChange)="onDeliveryZoneChange($event)"
-                        required
-                        class="border border-border rounded-sm p-3 w-full focus:ring-2 focus:ring-accent-soft focus:border-accent"
-                      >
-                        <option value="">Seleccionar zona</option>
-                        @for (zone of zones; track zone.id) {
-                          <option [value]="zone.id">
-                            {{ zone.name }} — {{ zone.cost | currency:'ARS':'symbol-narrow':'1.0-0' }}
-                          </option>
-                        }
-                      </select>
+                      @if (zonesLoading()) {
+                        <p class="text-muted text-sm py-3">Cargando zonas...</p>
+                      } @else {
+                        <select
+                          id="deliveryZone"
+                          name="deliveryZone"
+                          [(ngModel)]="formData.deliveryZone"
+                          (ngModelChange)="onDeliveryZoneChange($event)"
+                          required
+                          class="border border-border rounded-sm p-3 w-full focus:ring-2 focus:ring-accent-soft focus:border-accent"
+                        >
+                          <option value="">Seleccionar zona</option>
+                          @for (zone of zones(); track zone.id) {
+                            <option [value]="zone.id">
+                              {{ zone.name }} — {{ zone.cost | currency:'ARS':'symbol-narrow':'1.0-0' }}
+                            </option>
+                          }
+                        </select>
+                      }
                     </div>
                   </div>
                 </div>
@@ -174,7 +169,7 @@ const mockZones: DeliveryZone[] = [
                     <input
                       type="radio"
                       name="paymentMethod"
-                      value="mp"
+                      value="mercadopago"
                       [(ngModel)]="formData.paymentMethod"
                       class="mr-2 text-accent"
                     >
@@ -182,7 +177,6 @@ const mockZones: DeliveryZone[] = [
                   </label>
                 </div>
 
-                <!-- Datos de transferencia -->
                 @if (formData.paymentMethod === 'transfer') {
                   <div class="mt-4 p-4 bg-accent-soft/30 rounded-md">
                     <h3 class="h3 mb-2">Datos de transferencia</h3>
@@ -193,12 +187,19 @@ const mockZones: DeliveryZone[] = [
               </div>
 
               <!-- Botón de confirmar -->
-              <button
-                type="submit"
-                class="w-full px-6 py-3 bg-accent text-accent-on rounded-md font-medium hover:bg-accent/90 transition-colors"
-              >
-                Confirmar Pedido
-              </button>
+              <div class="space-y-3">
+                <button
+                  type="submit"
+                  [disabled]="submitting()"
+                  class="w-full px-6 py-3 bg-accent text-accent-on rounded-md font-medium hover:bg-accent/90 transition-colors disabled:opacity-70"
+                >
+                  {{ submitting() ? 'Confirmando...' : 'Confirmar Pedido' }}
+                </button>
+
+                @if (submitError()) {
+                  <p role="alert" class="text-danger text-sm text-center">{{ submitError() }}</p>
+                }
+              </div>
             </form>
           </div>
 
@@ -206,7 +207,7 @@ const mockZones: DeliveryZone[] = [
           <div class="lg:col-span-1">
             <div class="bg-surface border border-border rounded-md p-6 sticky top-8">
               <h2 class="h2 mb-4">Resumen del pedido</h2>
-              
+
               <div class="space-y-3 mb-6">
                 @for (item of cartService.items(); track item.product.id) {
                   <div class="flex justify-between items-center">
@@ -242,11 +243,17 @@ const mockZones: DeliveryZone[] = [
     }
   `
 })
-export class CheckoutComponent {
+export class CheckoutComponent implements OnInit {
   readonly cartService = inject(CartService);
   private readonly router = inject(Router);
+  private readonly orderService = inject(OrderService);
 
-  zones = mockZones;
+  readonly zones = signal<DeliveryZone[]>([]);
+  readonly zonesLoading = signal(true);
+  readonly submitting = signal(false);
+  readonly submitError = signal<string | null>(null);
+  readonly shippingCost = signal(0);
+  readonly total = computed(() => this.cartService.total() + this.shippingCost());
 
   formData = {
     customerName: '',
@@ -255,38 +262,61 @@ export class CheckoutComponent {
     address: '',
     deliveryZone: '',
     comments: '',
-    paymentMethod: 'cash'
+    paymentMethod: 'cash',
   };
 
-  shippingCost = signal(0);
-  total = computed(() => this.cartService.total() + this.shippingCost());
-
-  constructor() {
-    // Establecer costo de envío por defecto para retiro en local
-    this.shippingCost.set(0);
+  async ngOnInit(): Promise<void> {
+    try {
+      const zones = await this.orderService.loadDeliveryZones();
+      this.zones.set(zones);
+    } catch {
+      // zones stay empty — user can still submit a pickup order
+    } finally {
+      this.zonesLoading.set(false);
+    }
   }
 
-  onSubmit() {
-    // Valida campos requeridos en el frontend
+  async onSubmit(): Promise<void> {
     if (!this.formData.customerName || !this.formData.phone) {
       alert('Por favor completa todos los campos requeridos');
       return;
     }
 
-    if (this.formData.deliveryType === 'delivery' && 
-        (!this.formData.address || !this.formData.deliveryZone)) {
+    if (
+      this.formData.deliveryType === 'delivery' &&
+      (!this.formData.address || !this.formData.deliveryZone)
+    ) {
       alert('Por favor completa todos los campos de entrega');
       return;
     }
 
-    // Generar ID de pedido mock
-    const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
-    
-    // Limpiar carrito
-    this.cartService.clearCart();
-    
-    // Redirigir a confirmación
-    this.router.navigate(['/order-confirmation'], { queryParams: { orderId } });
+    this.submitting.set(true);
+    this.submitError.set(null);
+
+    try {
+      const cartItems = this.cartService.items();
+
+      const orderNumber = await this.orderService.createOrder({
+        customerName: this.formData.customerName,
+        customerPhone: this.formData.phone,
+        deliveryType: this.formData.deliveryType as 'pickup' | 'delivery',
+        address: this.formData.deliveryType === 'delivery' ? this.formData.address : undefined,
+        deliveryZoneId: this.formData.deliveryType === 'delivery' ? this.formData.deliveryZone : undefined,
+        comments: this.formData.comments || undefined,
+        paymentMethod: this.formData.paymentMethod as 'cash' | 'transfer' | 'mercadopago',
+        items: cartItems.map(item => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+        })),
+      });
+
+      this.cartService.clearCart();
+      this.router.navigate(['/order-confirmation'], { queryParams: { orderNumber } });
+    } catch {
+      this.submitError.set('Ocurrió un error al procesar tu pedido. Por favor intentá de nuevo.');
+    } finally {
+      this.submitting.set(false);
+    }
   }
 
   onDeliveryTypeChange(value: string): void {
@@ -308,8 +338,7 @@ export class CheckoutComponent {
       this.shippingCost.set(0);
       return;
     }
-
-    const zone = this.zones.find((item) => item.id === this.formData.deliveryZone);
+    const zone = this.zones().find(z => z.id === this.formData.deliveryZone);
     this.shippingCost.set(zone?.cost ?? 0);
   }
 }

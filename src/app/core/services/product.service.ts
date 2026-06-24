@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Product, Category, mockAllProducts } from '../mock-data';
+import { Product, Category, ComboItem, mockAllProducts } from '../mock-data';
 import { SupabaseClientService } from '../supabase.client';
 
 interface DbProduct {
@@ -19,22 +19,52 @@ interface DbCategory {
   description: string | null;
 }
 
+interface DbComboItemRow {
+  product_id: string;
+  quantity: number;
+  products: { name: string } | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private readonly supabase = inject(SupabaseClientService);
   private readonly mockProducts = mockAllProducts;
 
-  // ── Mock-backed methods (used by ProductDetail, Cart) ─────────────────────
-
-  getProductById(id: string): Product | null {
-    return this.mockProducts.find(p => p.id === id) ?? null;
-  }
+  // ── Mock-backed methods ───────────────────────────────────────────────────
 
   getActiveProducts(): Product[] {
     return this.mockProducts.filter(p => p.isActive);
   }
 
   // ── Supabase-backed methods ───────────────────────────────────────────────
+
+  async getProductById(id: string): Promise<Product | null> {
+    const { data, error } = await this.supabase.client
+      .from('products')
+      .select('id, name, description, price, is_active, is_combo, category_id, image_url')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) throw error;
+    const row = data as DbProduct | null;
+    if (!row || !row.is_active) return null;
+    return ProductService.mapProduct(row);
+  }
+
+  // Single query with join to avoid N+1. RLS already filters inactive components.
+  async getComboItemsWithNames(comboId: string): Promise<ComboItem[]> {
+    const { data, error } = await this.supabase.client
+      .from('combo_items')
+      .select('product_id, quantity, products!product_id(name)')
+      .eq('combo_id', comboId);
+
+    if (error) throw error;
+    return (data as unknown as DbComboItemRow[]).map(row => ({
+      productId: row.product_id,
+      quantity: row.quantity,
+      name: row.products?.name ?? '',
+    }));
+  }
 
   async loadCatalogProducts(): Promise<Product[]> {
     const { data, error } = await this.supabase.client

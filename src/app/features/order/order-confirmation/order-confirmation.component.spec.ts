@@ -1,20 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { OrderConfirmationComponent } from './order-confirmation.component';
-import { ActivatedRoute } from '@angular/router';
-import { Router } from '@angular/router';
 import { vi } from 'vitest';
+import { OrderConfirmationComponent } from './order-confirmation.component';
+import { ActivatedRoute, Router } from '@angular/router';
 
 describe('OrderConfirmationComponent', () => {
   let component: OrderConfirmationComponent;
   let fixture: ComponentFixture<OrderConfirmationComponent>;
-  let mockRouter: any;
+  let mockRouter: { navigate: ReturnType<typeof vi.fn> };
 
-  function setupRoute(queryParams: any) {
+  function setupRoute(queryParams: Record<string, string>) {
     return {
       provide: ActivatedRoute,
       useValue: {
         queryParams: {
-          subscribe: (fn: (params: any) => void) => {
+          subscribe: (fn: (params: Record<string, string>) => void) => {
             fn(queryParams);
           }
         }
@@ -22,20 +21,15 @@ describe('OrderConfirmationComponent', () => {
     };
   }
 
-  describe('when orderId is present', () => {
+  describe('when orderNumber is present', () => {
     beforeEach(async () => {
-      mockRouter = {
-        navigate: vi.fn()
-      };
+      mockRouter = { navigate: vi.fn() };
 
       await TestBed.configureTestingModule({
         imports: [OrderConfirmationComponent],
         providers: [
-          setupRoute({ orderId: 'ABC123' }),
-          {
-            provide: Router,
-            useValue: mockRouter
-          }
+          setupRoute({ orderNumber: 'ABC123' }),
+          { provide: Router, useValue: mockRouter }
         ]
       }).compileComponents();
 
@@ -48,25 +42,20 @@ describe('OrderConfirmationComponent', () => {
       expect(component).toBeTruthy();
     });
 
-    it('should display the order ID from query params', () => {
-      expect(component.orderId()).toBe('ABC123');
+    it('should display the order number from query params', () => {
+      expect(component.orderNumber()).toBe('ABC123');
     });
   });
 
-  describe('when orderId is missing', () => {
+  describe('when orderNumber is missing', () => {
     beforeEach(async () => {
-      mockRouter = {
-        navigate: vi.fn()
-      };
+      mockRouter = { navigate: vi.fn() };
 
       await TestBed.configureTestingModule({
         imports: [OrderConfirmationComponent],
         providers: [
           setupRoute({}),
-          {
-            provide: Router,
-            useValue: mockRouter
-          }
+          { provide: Router, useValue: mockRouter }
         ]
       }).compileComponents();
 
@@ -75,7 +64,7 @@ describe('OrderConfirmationComponent', () => {
       fixture.detectChanges();
     });
 
-    it('should redirect to / when no orderId is provided', () => {
+    it('should redirect to / when no orderNumber is provided', () => {
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/']);
     });
   });
