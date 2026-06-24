@@ -4,7 +4,7 @@ import { HomeComponent } from './home.component';
 import { ProductService } from '../../../core/services/product.service';
 import { SiteSettingsService } from '../../../core/services/site-settings.service';
 import type { SiteSettingsData } from '../../../core/services/site-settings.service';
-import type { Product } from '../../../core/mock-data';
+import type { Product, Category } from '../../../core/mock-data';
 
 const MOCK_SETTINGS: SiteSettingsData = {
   businessHours: 'Lunes a Domingo 11:00 - 22:00',
@@ -18,6 +18,13 @@ const MOCK_SETTINGS: SiteSettingsData = {
   bankTransferAlias: null,
   bankTransferCbu: null,
 };
+
+const MOCK_CATEGORIES: Category[] = [
+  { id: 'hamburguesas', name: 'Hamburguesas' },
+  { id: 'acompañamientos', name: 'Acompañamientos' },
+  { id: 'bebidas', name: 'Bebidas' },
+  { id: 'combos', name: 'Combos' },
+];
 
 const MOCK_FEATURED: Product[] = [
   {
@@ -41,7 +48,7 @@ const MOCK_FEATURED: Product[] = [
 class ProductServiceStub {
   loadFeaturedProducts = (): Promise<Product[]> => Promise.resolve(MOCK_FEATURED);
   loadCatalogProducts = (): Promise<Product[]> => Promise.resolve([]);
-  loadCatalogCategories = (): Promise<never[]> => Promise.resolve([]);
+  loadCatalogCategories = (): Promise<Category[]> => Promise.resolve(MOCK_CATEGORIES);
   getProductById = (_id: string): null => null;
   getActiveProducts = (): Product[] => MOCK_FEATURED;
 }
@@ -93,6 +100,16 @@ describe('HomeComponent', () => {
     await component.ngOnInit();
 
     expect(component.settings()?.bannerTitle).toBe(MOCK_SETTINGS.bannerTitle);
+  });
+
+  it('should load categories on init', async () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    const component = fixture.componentInstance;
+
+    await component.ngOnInit();
+
+    expect(component.categories().length).toBe(MOCK_CATEGORIES.length);
+    expect(component.categories()[0].id).toBe('hamburguesas');
   });
 
   it('should set error state and clear loading when a service throws', async () => {

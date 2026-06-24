@@ -6,10 +6,9 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { mockCategories } from '../../../core/mock-data';
 import { ProductService } from '../../../core/services/product.service';
 import { SiteSettingsService, SiteSettingsData } from '../../../core/services/site-settings.service';
-import type { Product } from '../../../core/mock-data';
+import type { Product, Category } from '../../../core/mock-data';
 
 @Component({
   selector: 'app-home',
@@ -76,7 +75,7 @@ import type { Product } from '../../../core/mock-data';
         <section class="mb-16">
           <h2 class="h2 text-fg mb-6 text-center">Nuestras Categorías</h2>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            @for (category of categories; track category.id) {
+            @for (category of categories(); track category.id) {
               <div class="bg-surface rounded-md p-4 border border-border text-center hover:shadow-md transition-shadow">
                 <div class="bg-gray-200 border-2 border-dashed rounded-xl w-full h-24 mb-2"></div>
                 <h3 class="h3 text-fg">{{ category.name }}</h3>
@@ -135,18 +134,18 @@ export class HomeComponent implements OnInit {
   readonly hasError = signal(false);
   readonly settings = signal<SiteSettingsData | null>(null);
   readonly featuredProducts = signal<Product[]>([]);
-
-  // Categories still served from mock data (Supabase connection deferred)
-  readonly categories = mockCategories;
+  readonly categories = signal<Category[]>([]);
 
   async ngOnInit(): Promise<void> {
     try {
-      const [settings, products] = await Promise.all([
+      const [settings, products, categories] = await Promise.all([
         this.siteSettingsService.getSettings(),
         this.productService.loadFeaturedProducts(),
+        this.productService.loadCatalogCategories(),
       ]);
       this.settings.set(settings);
       this.featuredProducts.set(products);
+      this.categories.set(categories);
     } catch {
       this.hasError.set(true);
     } finally {
