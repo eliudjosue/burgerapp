@@ -13,6 +13,7 @@ Supabase dashboard → SQL Editor. Mark each row after running it.
 | 4 | `004_tracking_function.sql` | `get_order_for_tracking()` RPC + GRANT | ✓ |
 | 5 | `005_seed_data.sql` | Initial catalog data (4 categories, 9 products, 6 combo_items) | ☐ |
 | 6 | `006_update_site_settings.sql` | Placeholder content for the single `site_settings` row | ☐ |
+| 7 | `007_dashboard_metrics.sql` | `get_dashboard_metrics()` RPC for admin dashboard | ☐ |
 
 ## Idempotency
 
