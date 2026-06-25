@@ -8,6 +8,7 @@ import {
 import { Router } from '@angular/router';
 import { SupabaseClientService } from '../../../../core/supabase.client';
 import { AuthService } from '../../../../core/services/auth.service';
+import { StorageService } from '../../../../core/services/storage.service';
 
 export interface DashboardMetrics {
   today_sales: number;
@@ -167,6 +168,64 @@ export interface DashboardMetrics {
             </div>
           </section>
 
+          <!-- TEMP: storage upload tester — remove when product management is built -->
+          <section aria-label="Prueba de subida de imágenes" class="mb-6">
+            <div class="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted mb-3
+                        flex items-center gap-2">
+              Prueba de Storage
+              <span class="px-2 py-0.5 rounded-full bg-warn-soft text-warn text-[10px]
+                           font-mono normal-case tracking-normal">
+                temporal
+              </span>
+            </div>
+
+            <div class="bg-surface border border-border rounded-lg p-4">
+              <p class="text-[13px] text-muted mb-3">
+                Subí una imagen (JPG, PNG o WebP, máx. 2 MB) para confirmar que Storage funciona.
+              </p>
+
+              <label class="block" [class.opacity-50]="uploading()">
+                <span class="sr-only">Elegir imagen de producto</span>
+                <input
+                  #fileInput
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  (change)="onFileSelected($event)"
+                  [disabled]="uploading()"
+                  class="block text-[13px] text-muted cursor-pointer
+                         file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0
+                         file:text-[12px] file:font-semibold file:bg-accent file:text-white
+                         file:cursor-pointer"
+                />
+              </label>
+
+              @if (uploading()) {
+                <p class="text-[13px] text-muted mt-3">Subiendo…</p>
+              }
+
+              @if (uploadResult()) {
+                <div class="mt-3 p-3 bg-success-soft rounded-lg">
+                  <p class="text-[12px] text-success font-semibold mb-1">
+                    Subida exitosa — abrí el link para verificar:
+                  </p>
+                  <a
+                    [href]="uploadResult()"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-[12px] text-accent underline break-all font-mono"
+                    [attr.aria-label]="'Ver imagen subida en nueva pestaña'"
+                  >{{ uploadResult() }}</a>
+                </div>
+              }
+
+              @if (uploadError()) {
+                <div class="mt-3 p-3 bg-danger-soft rounded-lg" role="alert">
+                  <p class="text-[12px] text-danger">{{ uploadError() }}</p>
+                </div>
+              }
+            </div>
+          </section>
+
           <!-- Top products -->
           <section aria-label="Productos más vendidos">
             <div class="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted mb-3">
@@ -232,10 +291,15 @@ export class AdminDashboardComponent implements OnInit {
   private readonly supabase = inject(SupabaseClientService);
   readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly storageService = inject(StorageService);
 
   readonly isLoading = signal(true);
   readonly hasError = signal(false);
   readonly metrics = signal<DashboardMetrics | null>(null);
+
+  readonly uploading = signal(false);
+  readonly uploadResult = signal<string | null>(null);
+  readonly uploadError = signal<string | null>(null);
 
   async ngOnInit(): Promise<void> {
     this.isLoading.set(true);
@@ -248,6 +312,26 @@ export class AdminDashboardComponent implements OnInit {
       this.hasError.set(true);
     } finally {
       this.isLoading.set(false);
+    }
+  }
+
+  async onFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.uploadResult.set(null);
+    this.uploadError.set(null);
+    this.uploading.set(true);
+
+    try {
+      const url = await this.storageService.uploadProductImage(file);
+      this.uploadResult.set(url);
+    } catch (err) {
+      this.uploadError.set(err instanceof Error ? err.message : 'Error al subir la imagen.');
+    } finally {
+      this.uploading.set(false);
+      input.value = '';
     }
   }
 

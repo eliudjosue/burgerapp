@@ -7,6 +7,7 @@ import type { DashboardMetrics } from './admin-dashboard.component';
 import { SupabaseClientService } from '../../../../core/supabase.client';
 import { AuthService } from '../../../../core/services/auth.service';
 import type { StaffProfile } from '../../../../core/services/auth.service';
+import { StorageService } from '../../../../core/services/storage.service';
 
 const MOCK_METRICS: DashboardMetrics = {
   today_sales: 15000,
@@ -32,6 +33,12 @@ class AuthServiceStub {
   signOut = vi.fn().mockResolvedValue(undefined);
 }
 
+const UPLOAD_URL = 'https://project.supabase.co/storage/v1/object/public/product-images/products/uuid.jpg';
+
+class StorageServiceStub {
+  uploadProductImage = vi.fn().mockResolvedValue(UPLOAD_URL);
+}
+
 describe('AdminDashboardComponent', () => {
   let supabaseStub: SupabaseClientServiceStub;
 
@@ -43,6 +50,7 @@ describe('AdminDashboardComponent', () => {
         provideRouter([]),
         { provide: SupabaseClientService, useValue: supabaseStub },
         { provide: AuthService, useClass: AuthServiceStub },
+        { provide: StorageService, useClass: StorageServiceStub },
       ],
     }).compileComponents();
   });
@@ -155,5 +163,66 @@ describe('AdminDashboardComponent', () => {
 
     expect(authStub.signOut).toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/staff/login']);
+  });
+
+  // ── Upload handler ────────────────────────────────────────────────────────
+
+  it('onFileSelected() sets uploadResult with the returned URL on success', async () => {
+    const fixture = TestBed.createComponent(AdminDashboardComponent);
+    const file = new File(['data'], 'burger.jpg', { type: 'image/jpeg' });
+    const event = { target: { files: [file], value: '' } } as unknown as Event;
+
+    await fixture.componentInstance.onFileSelected(event);
+
+    expect(fixture.componentInstance.uploadResult()).toBe(UPLOAD_URL);
+    expect(fixture.componentInstance.uploadError()).toBeNull();
+  });
+
+  it('onFileSelected() sets uploadError and keeps uploadResult null on failure', async () => {
+    const storageStub = TestBed.inject(StorageService) as unknown as StorageServiceStub;
+    storageStub.uploadProductImage = vi
+      .fn()
+      .mockRejectedValue(new Error('Tipo de archivo no permitido.'));
+
+    const fixture = TestBed.createComponent(AdminDashboardComponent);
+    const file = new File(['data'], 'doc.pdf', { type: 'application/pdf' });
+    const event = { target: { files: [file], value: '' } } as unknown as Event;
+
+    await fixture.componentInstance.onFileSelected(event);
+
+    expect(fixture.componentInstance.uploadError()).toContain('Tipo de archivo no permitido');
+    expect(fixture.componentInstance.uploadResult()).toBeNull();
+  });
+
+  it('onFileSelected() clears a previous result before a new upload', async () => {
+    const fixture = TestBed.createComponent(AdminDashboardComponent);
+    fixture.componentInstance.uploadResult.set('https://old-url.example.com/img.jpg');
+
+    const file = new File(['data'], 'new.jpg', { type: 'image/jpeg' });
+    const event = { target: { files: [file], value: '' } } as unknown as Event;
+
+    await fixture.componentInstance.onFileSelected(event);
+
+    expect(fixture.componentInstance.uploadResult()).toBe(UPLOAD_URL);
+  });
+
+  it('onFileSelected() sets uploading to false after completion', async () => {
+    const fixture = TestBed.createComponent(AdminDashboardComponent);
+    const file = new File(['data'], 'burger.jpg', { type: 'image/jpeg' });
+    const event = { target: { files: [file], value: '' } } as unknown as Event;
+
+    await fixture.componentInstance.onFileSelected(event);
+
+    expect(fixture.componentInstance.uploading()).toBe(false);
+  });
+
+  it('onFileSelected() does nothing when no file is selected', async () => {
+    const storageStub = TestBed.inject(StorageService) as unknown as StorageServiceStub;
+    const fixture = TestBed.createComponent(AdminDashboardComponent);
+    const event = { target: { files: [], value: '' } } as unknown as Event;
+
+    await fixture.componentInstance.onFileSelected(event);
+
+    expect(storageStub.uploadProductImage).not.toHaveBeenCalled();
   });
 });
