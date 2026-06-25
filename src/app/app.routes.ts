@@ -12,6 +12,7 @@ import { KitchenComponent } from './features/staff/kitchen/kitchen.component';
 import { CashierComponent } from './features/staff/cashier/cashier.component';
 import { AdminDashboardComponent } from './features/staff/admin/dashboard/admin-dashboard.component';
 import { AdminProductsComponent } from './features/staff/admin/products/admin-products.component';
+import { AdminCategoriesComponent } from './features/staff/admin/categories/admin-categories.component';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 
@@ -31,5 +32,6 @@ export const routes: Routes = [
   { path: 'staff/cashier', component: CashierComponent, canActivate: [roleGuard(['cashier', 'admin'])] },
   { path: 'staff/admin', component: AdminDashboardComponent, canActivate: [roleGuard(['admin'])] },
   { path: 'staff/admin/products', component: AdminProductsComponent, canActivate: [roleGuard(['admin'])] },
+  { path: 'staff/admin/categories', component: AdminCategoriesComponent, canActivate: [roleGuard(['admin'])] },
   { path: '**', redirectTo: '' },
 ];

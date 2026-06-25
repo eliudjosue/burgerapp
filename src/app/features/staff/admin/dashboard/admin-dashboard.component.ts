@@ -92,6 +92,25 @@ export interface DashboardMetrics {
                   <div class="text-[11px] text-muted">Catálogo</div>
                 </div>
               </a>
+              <a
+                routerLink="/staff/admin/categories"
+                class="bg-surface border border-border rounded-lg p-4 flex items-center
+                       gap-3 no-underline hover:border-accent/30 transition-colors"
+                aria-label="Gestión de categorías"
+              >
+                <div class="w-8 h-8 rounded-lg bg-accent-soft flex items-center
+                            justify-center shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2"
+                       class="text-accent" aria-hidden="true">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-[13px] font-semibold text-fg">Categorías</div>
+                  <div class="text-[11px] text-muted">Catálogo</div>
+                </div>
+              </a>
             </div>
           </section>
 
