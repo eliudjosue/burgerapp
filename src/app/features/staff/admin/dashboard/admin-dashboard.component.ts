@@ -5,7 +5,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { SupabaseClientService } from '../../../../core/supabase.client';
 import { AuthService } from '../../../../core/services/auth.service';
 import { StorageService } from '../../../../core/services/storage.service';
@@ -21,7 +21,7 @@ export interface DashboardMetrics {
 @Component({
   selector: 'app-admin-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [],
+  imports: [RouterLink],
   template: `
     <div class="min-h-dvh bg-[#f5f4f1]">
 
@@ -59,44 +59,73 @@ export interface DashboardMetrics {
         </div>
       </header>
 
-      <!-- Loading -->
-      @if (isLoading()) {
-        <div class="flex items-center justify-center h-48 text-muted text-sm">
-          Cargando métricas…
-        </div>
-      }
-
-      <!-- Error -->
-      @else if (hasError()) {
-        <div class="flex flex-col items-center justify-center py-16 text-center gap-2 px-4"
-             role="alert">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="1.5"
-               class="text-danger opacity-50" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <p class="text-sm text-muted">No se pudieron cargar las métricas.</p>
-          <button
-            type="button"
-            (click)="ngOnInit()"
-            class="text-xs text-accent underline cursor-pointer bg-transparent border-0 mt-1"
-          >
-            Reintentar
-          </button>
-        </div>
-      }
-
-      <!-- Content -->
-      @else if (metrics(); as m) {
-        <main class="px-3 pb-8 max-w-5xl mx-auto">
+      <main class="px-3 pb-8 max-w-5xl mx-auto">
 
           <!-- Page header -->
           <div class="py-5">
             <h1 class="text-[22px] font-semibold text-fg tracking-tight">Dashboard</h1>
             <p class="text-[13px] text-muted mt-0.5">Métricas del negocio al día de hoy</p>
           </div>
+
+          <!-- Gestión — quick-access links to admin sections -->
+          <section aria-label="Gestión" class="mb-6">
+            <div class="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted mb-3">
+              Gestión
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <a
+                routerLink="/staff/admin/products"
+                class="bg-surface border border-border rounded-lg p-4 flex items-center
+                       gap-3 no-underline hover:border-accent/30 transition-colors"
+                aria-label="Gestión de productos"
+              >
+                <div class="w-8 h-8 rounded-lg bg-accent-soft flex items-center
+                            justify-center shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2"
+                       class="text-accent" aria-hidden="true">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-[13px] font-semibold text-fg">Productos</div>
+                  <div class="text-[11px] text-muted">Catálogo</div>
+                </div>
+              </a>
+            </div>
+          </section>
+
+          <!-- Loading -->
+          @if (isLoading()) {
+            <div class="flex items-center justify-center h-48 text-muted text-sm">
+              Cargando métricas…
+            </div>
+          }
+
+          <!-- Error -->
+          @else if (hasError()) {
+            <div class="flex flex-col items-center justify-center py-16 text-center gap-2 px-4"
+                 role="alert">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   class="text-danger opacity-50" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <p class="text-sm text-muted">No se pudieron cargar las métricas.</p>
+              <button
+                type="button"
+                (click)="ngOnInit()"
+                class="text-xs text-accent underline cursor-pointer bg-transparent border-0 mt-1"
+              >
+                Reintentar
+              </button>
+            </div>
+          }
+
+          <!-- Content -->
+          @else if (metrics(); as m) {
 
           <!-- Sales + pending metrics -->
           <section aria-label="Métricas de ventas" class="mb-6">
@@ -280,8 +309,9 @@ export interface DashboardMetrics {
             }
           </section>
 
-        </main>
-      }
+          }
+
+      </main>
 
     </div>
   `,

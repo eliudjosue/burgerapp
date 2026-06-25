@@ -15,6 +15,7 @@ Supabase dashboard → SQL Editor. Mark each row after running it.
 | 6 | `006_update_site_settings.sql` | Placeholder content for the single `site_settings` row | ☐ |
 | 7 | `007_dashboard_metrics.sql` | `get_dashboard_metrics()` RPC for admin dashboard | ☐ |
 | 8 | `008_storage_setup.sql` | `product-images` bucket + Storage RLS policies | ☐ |
+| 9 | `009_products_admin_rls.sql` | Tighten products + combo_items write to admin-only; split off staff-wide SELECT | ☐ |
 
 ## Idempotency
 
@@ -26,6 +27,7 @@ Supabase dashboard → SQL Editor. Mark each row after running it.
 | `004_tracking_function.sql` | ✓ — uses `CREATE OR REPLACE FUNCTION` |
 | `005_seed_data.sql` | ✓ — skips if products table is not empty |
 | `006_update_site_settings.sql` | ✓ — UPDATE on id = 1 is always safe to re-run |
+| `009_products_admin_rls.sql` | ✓ — uses `DROP POLICY IF EXISTS` before `CREATE POLICY` |
 
 ## RLS summary
 
