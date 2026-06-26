@@ -111,6 +111,28 @@ export interface DashboardMetrics {
                   <div class="text-[11px] text-muted">Catálogo</div>
                 </div>
               </a>
+              <a
+                routerLink="/staff/admin/users"
+                class="bg-surface border border-border rounded-lg p-4 flex items-center
+                       gap-3 no-underline hover:border-accent/30 transition-colors"
+                aria-label="Gestión de usuarios de staff"
+              >
+                <div class="w-8 h-8 rounded-lg bg-accent-soft flex items-center
+                            justify-center shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2"
+                       class="text-accent" aria-hidden="true">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-[13px] font-semibold text-fg">Usuarios</div>
+                  <div class="text-[11px] text-muted">Staff</div>
+                </div>
+              </a>
             </div>
           </section>
 
