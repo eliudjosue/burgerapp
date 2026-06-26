@@ -133,6 +133,25 @@ export interface DashboardMetrics {
                   <div class="text-[11px] text-muted">Staff</div>
                 </div>
               </a>
+              <a
+                routerLink="/staff/admin/orders"
+                class="bg-surface border border-border rounded-lg p-4 flex items-center
+                       gap-3 no-underline hover:border-accent/30 transition-colors"
+                aria-label="Historial de pedidos"
+              >
+                <div class="w-8 h-8 rounded-lg bg-accent-soft flex items-center
+                            justify-center shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2"
+                       class="text-accent" aria-hidden="true">
+                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-[13px] font-semibold text-fg">Pedidos</div>
+                  <div class="text-[11px] text-muted">Historial</div>
+                </div>
+              </a>
             </div>
           </section>
 

@@ -16,6 +16,7 @@ import { AdminCategoriesComponent } from './features/staff/admin/categories/admi
 import { AdminDeliveryZonesComponent } from './features/staff/admin/delivery-zones/admin-delivery-zones.component';
 import { AdminSiteSettingsComponent } from './features/staff/admin/site-settings/admin-site-settings.component';
 import { AdminUsersComponent } from './features/staff/admin/users/admin-users.component';
+import { AdminOrdersComponent } from './features/staff/admin/orders/admin-orders.component';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 
@@ -39,5 +40,6 @@ export const routes: Routes = [
   { path: 'staff/admin/delivery-zones', component: AdminDeliveryZonesComponent, canActivate: [roleGuard(['admin'])] },
   { path: 'staff/admin/settings', component: AdminSiteSettingsComponent, canActivate: [roleGuard(['admin'])] },
   { path: 'staff/admin/users', component: AdminUsersComponent, canActivate: [roleGuard(['admin'])] },
+  { path: 'staff/admin/orders', component: AdminOrdersComponent, canActivate: [roleGuard(['admin'])] },
   { path: '**', redirectTo: '' },
 ];
