@@ -46,6 +46,7 @@ describe('CheckoutComponent', () => {
   let orderStub: OrderServiceStub;
 
   beforeEach(async () => {
+    localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [CheckoutComponent],
       providers: [
@@ -187,5 +188,44 @@ describe('CheckoutComponent', () => {
     await component.onSubmit();
 
     expect(component.submitting()).toBe(false);
+  });
+
+  it('should save last_order to localStorage with orderNumber and phone on success', async () => {
+    orderStub.createOrder = vi.fn(() => Promise.resolve('ABC123')) as unknown as (_: CreateOrderPayload) => Promise<string>;
+    cartStub.setItems([{ product: MOCK_PRODUCT, quantity: 1 }]);
+
+    const fixture = TestBed.createComponent(CheckoutComponent);
+    const component = fixture.componentInstance;
+    const router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    await component.ngOnInit();
+    component.formData.customerName = 'Juan';
+    component.formData.phone = '1134567890';
+
+    await component.onSubmit();
+
+    const stored = localStorage.getItem('last_order');
+    expect(stored).not.toBeNull();
+    const parsed = JSON.parse(stored!);
+    expect(parsed).toEqual({ orderNumber: 'ABC123', phone: '1134567890' });
+  });
+
+  it('should not save last_order to localStorage when createOrder throws', async () => {
+    orderStub.createOrder = () => Promise.reject(new Error('DB error'));
+    cartStub.setItems([{ product: MOCK_PRODUCT, quantity: 1 }]);
+
+    const fixture = TestBed.createComponent(CheckoutComponent);
+    const component = fixture.componentInstance;
+    const router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    await component.ngOnInit();
+    component.formData.customerName = 'Juan';
+    component.formData.phone = '1134567890';
+
+    await component.onSubmit();
+
+    expect(localStorage.getItem('last_order')).toBeNull();
   });
 });

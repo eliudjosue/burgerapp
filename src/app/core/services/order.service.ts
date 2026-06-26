@@ -23,10 +23,28 @@ export interface CreateOrderPayload {
   items: OrderItemPayload[];
 }
 
+export interface TrackedOrder {
+  id: string;
+  orderNumber: string;
+  orderStatus: string;
+  deliveryType: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface DbDeliveryZone {
   id: string;
   name: string;
   cost: number;
+}
+
+interface DbTrackedOrder {
+  id: string;
+  order_number: string;
+  order_status: string;
+  delivery_type: string;
+  created_at: string;
+  updated_at: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -46,6 +64,25 @@ export class OrderService {
       name: row.name,
       cost: Number(row.cost),
     }));
+  }
+
+  async trackOrder(orderNumber: string, phone: string): Promise<TrackedOrder | null> {
+    const { data, error } = await this.supabase.client.rpc('get_order_for_tracking', {
+      p_order_number: orderNumber,
+      p_phone: phone,
+    });
+    if (error) throw error;
+    const rows = data as DbTrackedOrder[] | null;
+    if (!rows || rows.length === 0) return null;
+    const row = rows[0];
+    return {
+      id: row.id,
+      orderNumber: row.order_number,
+      orderStatus: row.order_status,
+      deliveryType: row.delivery_type,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
   }
 
   async createOrder(payload: CreateOrderPayload): Promise<string> {

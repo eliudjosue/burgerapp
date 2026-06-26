@@ -311,6 +311,10 @@ export class CheckoutComponent implements OnInit {
       });
 
       this.cartService.clearCart();
+      localStorage.setItem(
+        'last_order',
+        JSON.stringify({ orderNumber, phone: this.formData.phone }),
+      );
       this.router.navigate(['/order-confirmation'], { queryParams: { orderNumber } });
     } catch {
       this.submitError.set('Ocurrió un error al procesar tu pedido. Por favor intentá de nuevo.');
