@@ -155,6 +155,54 @@ export interface DashboardMetrics {
             </div>
           </section>
 
+          <!-- Operaciones — quick-access links to staff operation views -->
+          <section aria-label="Operaciones" class="mb-6">
+            <div class="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted mb-3">
+              Operaciones
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <a
+                routerLink="/staff/kitchen"
+                class="bg-surface border border-border rounded-lg p-4 flex items-center
+                       gap-3 no-underline hover:border-accent/30 transition-colors"
+                aria-label="Vista de cocina"
+              >
+                <div class="w-8 h-8 rounded-lg bg-accent-soft flex items-center
+                            justify-center shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2"
+                       class="text-accent" aria-hidden="true">
+                    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-[13px] font-semibold text-fg">Cocina</div>
+                  <div class="text-[11px] text-muted">Vista operativa</div>
+                </div>
+              </a>
+              <a
+                routerLink="/staff/cashier"
+                class="bg-surface border border-border rounded-lg p-4 flex items-center
+                       gap-3 no-underline hover:border-accent/30 transition-colors"
+                aria-label="Vista de caja"
+              >
+                <div class="w-8 h-8 rounded-lg bg-accent-soft flex items-center
+                            justify-center shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2"
+                       class="text-accent" aria-hidden="true">
+                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                    <line x1="2" y1="10" x2="22" y2="10"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-[13px] font-semibold text-fg">Caja</div>
+                  <div class="text-[11px] text-muted">Vista operativa</div>
+                </div>
+              </a>
+            </div>
+          </section>
+
           <!-- Loading -->
           @if (isLoading()) {
             <div class="flex items-center justify-center h-48 text-muted text-sm">
