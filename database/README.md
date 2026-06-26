@@ -16,6 +16,8 @@ Supabase dashboard → SQL Editor. Mark each row after running it.
 | 7 | `007_dashboard_metrics.sql` | `get_dashboard_metrics()` RPC for admin dashboard | ☐ |
 | 8 | `008_storage_setup.sql` | `product-images` bucket + Storage RLS policies | ☐ |
 | 9 | `009_products_admin_rls.sql` | Tighten products + combo_items write to admin-only; split off staff-wide SELECT | ☐ |
+| 10 | `010_categories_admin_rls.sql` | Tighten categories write to admin-only; split off staff-wide SELECT | ☐ |
+| 11 | `012_delivery_zones_admin_rls.sql` | Tighten delivery_zones write to admin-only; split off staff-wide SELECT | ☐ |
 
 ## Idempotency
 
@@ -28,15 +30,17 @@ Supabase dashboard → SQL Editor. Mark each row after running it.
 | `005_seed_data.sql` | ✓ — skips if products table is not empty |
 | `006_update_site_settings.sql` | ✓ — UPDATE on id = 1 is always safe to re-run |
 | `009_products_admin_rls.sql` | ✓ — uses `DROP POLICY IF EXISTS` before `CREATE POLICY` |
+| `010_categories_admin_rls.sql` | ✓ — uses `DROP POLICY IF EXISTS` before `CREATE POLICY` |
+| `012_delivery_zones_admin_rls.sql` | ✓ — uses `DROP POLICY IF EXISTS` before `CREATE POLICY` |
 
 ## RLS summary
 
 | Table | anon (public) | authenticated (staff) |
 |---|---|---|
-| `categories` | SELECT — active only | Full CRUD |
-| `products` | SELECT — active only | Full CRUD |
-| `combo_items` | SELECT — only if both combo and component product are active | Full CRUD |
-| `delivery_zones` | SELECT — active only | Full CRUD |
+| `categories` | SELECT — active only | SELECT (all staff) · INSERT/UPDATE/DELETE (admin only) — after `010` |
+| `products` | SELECT — active only | SELECT (all staff) · INSERT/UPDATE/DELETE (admin only) — after `009` |
+| `combo_items` | SELECT — only if both combo and component product are active | SELECT (all staff) · INSERT/UPDATE/DELETE (admin only) — after `009` |
+| `delivery_zones` | SELECT — active only | SELECT (all staff) · INSERT/UPDATE/DELETE (admin only) — after `012` |
 | `site_settings` | SELECT | UPDATE — admin only |
 | `orders` | INSERT | SELECT + UPDATE |
 | `order_items` | INSERT | SELECT |
