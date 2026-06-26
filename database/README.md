@@ -18,6 +18,7 @@ Supabase dashboard → SQL Editor. Mark each row after running it.
 | 9 | `009_products_admin_rls.sql` | Tighten products + combo_items write to admin-only; split off staff-wide SELECT | ☐ |
 | 10 | `010_categories_admin_rls.sql` | Tighten categories write to admin-only; split off staff-wide SELECT | ☐ |
 | 11 | `012_delivery_zones_admin_rls.sql` | Tighten delivery_zones write to admin-only; split off staff-wide SELECT | ☐ |
+| 12 | `013_site_assets_storage.sql` | `site-assets` bucket + Storage RLS policies (same pattern as product-images) | ☐ |
 
 ## Idempotency
 
@@ -32,6 +33,7 @@ Supabase dashboard → SQL Editor. Mark each row after running it.
 | `009_products_admin_rls.sql` | ✓ — uses `DROP POLICY IF EXISTS` before `CREATE POLICY` |
 | `010_categories_admin_rls.sql` | ✓ — uses `DROP POLICY IF EXISTS` before `CREATE POLICY` |
 | `012_delivery_zones_admin_rls.sql` | ✓ — uses `DROP POLICY IF EXISTS` before `CREATE POLICY` |
+| `013_site_assets_storage.sql` | Partial — bucket insert yes; policies NO. Re-running fails "policy already exists". Drop first if needed. |
 
 ## RLS summary
 

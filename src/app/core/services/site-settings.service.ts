@@ -57,4 +57,24 @@ export class SiteSettingsService {
       bankTransferCbu: row.bank_transfer_cbu,
     };
   }
+
+  async updateSettings(data: SiteSettingsData): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('site_settings')
+      .update({
+        business_hours:     data.businessHours,
+        whatsapp_number:    data.whatsappNumber,
+        logo_url:           data.logoUrl,
+        banner_image_url:   data.bannerImageUrl,
+        banner_title:       data.bannerTitle,
+        banner_subtitle:    data.bannerSubtitle,
+        banner_button_text: data.bannerButtonText,
+        banner_button_link: data.bannerButtonLink,
+        bank_transfer_alias: data.bankTransferAlias,
+        bank_transfer_cbu:   data.bankTransferCbu,
+      } satisfies DbSiteSettings)
+      .eq('id', 1);
+
+    if (error) throw error;
+  }
 }

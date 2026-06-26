@@ -22,7 +22,7 @@ export class StorageService {
   readonly maxSizeBytes = MAX_SIZE_BYTES;
   readonly allowedTypes = ALLOWED_TYPES;
 
-  async uploadProductImage(file: File): Promise<string> {
+  async uploadImage(bucket: string, folder: string, file: File): Promise<string> {
     if (!ALLOWED_TYPES.has(file.type)) {
       throw new Error('Tipo de archivo no permitido. Solo se aceptan JPG, PNG y WebP.');
     }
@@ -32,18 +32,26 @@ export class StorageService {
     }
 
     const ext = EXT_FROM_MIME[file.type] ?? 'jpg';
-    const path = `products/${crypto.randomUUID()}.${ext}`;
+    const path = `${folder}/${crypto.randomUUID()}.${ext}`;
 
     const { error } = await this.supabase.client.storage
-      .from('product-images')
+      .from(bucket)
       .upload(path, file, { upsert: false });
 
     if (error) throw error;
 
     const { data } = this.supabase.client.storage
-      .from('product-images')
+      .from(bucket)
       .getPublicUrl(path);
 
     return data.publicUrl;
+  }
+
+  async uploadProductImage(file: File): Promise<string> {
+    return this.uploadImage('product-images', 'products', file);
+  }
+
+  async uploadSiteAsset(file: File): Promise<string> {
+    return this.uploadImage('site-assets', 'site', file);
   }
 }
