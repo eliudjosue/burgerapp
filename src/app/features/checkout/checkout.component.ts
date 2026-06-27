@@ -186,18 +186,40 @@ import { OrderService, DeliveryZone } from '../../core/services/order.service';
                 }
               </div>
 
-              <!-- Botón de confirmar -->
+              <!-- Botón de confirmar / reintento de pago MP -->
               <div class="space-y-3">
-                <button
-                  type="submit"
-                  [disabled]="submitting()"
-                  class="w-full px-6 py-3 bg-accent text-accent-on rounded-md font-medium hover:bg-accent/90 transition-colors disabled:opacity-70"
-                >
-                  {{ submitting() ? 'Confirmando...' : 'Confirmar Pedido' }}
-                </button>
-
-                @if (submitError()) {
-                  <p role="alert" class="text-danger text-sm text-center">{{ submitError() }}</p>
+                @if (pendingMpPayment(); as pending) {
+                  <div class="p-4 bg-warn/10 border border-warn rounded-md space-y-3" role="alert">
+                    <p class="font-medium text-fg">
+                      Tu pedido fue registrado (Nro. <span class="font-bold">{{ pending.orderNumber }}</span>),
+                      pero no pudimos generar el link de pago de Mercado Pago.
+                    </p>
+                    <p class="text-sm text-muted">
+                      Podés reintentar o contactarnos indicando tu número de pedido.
+                    </p>
+                    <button
+                      type="button"
+                      (click)="retryMpPayment()"
+                      [disabled]="submitting()"
+                      class="w-full px-6 py-3 bg-accent text-accent-on rounded-md font-medium hover:bg-accent/90 transition-colors disabled:opacity-70"
+                    >
+                      {{ submitting() ? 'Reintentando...' : 'Reintentar pago con Mercado Pago' }}
+                    </button>
+                    @if (submitError()) {
+                      <p class="text-danger text-sm">{{ submitError() }}</p>
+                    }
+                  </div>
+                } @else {
+                  <button
+                    type="submit"
+                    [disabled]="submitting()"
+                    class="w-full px-6 py-3 bg-accent text-accent-on rounded-md font-medium hover:bg-accent/90 transition-colors disabled:opacity-70"
+                  >
+                    {{ submitting() ? 'Confirmando...' : 'Confirmar Pedido' }}
+                  </button>
+                  @if (submitError()) {
+                    <p role="alert" class="text-danger text-sm text-center">{{ submitError() }}</p>
+                  }
                 }
               </div>
             </form>
@@ -252,6 +274,7 @@ export class CheckoutComponent implements OnInit {
   readonly zonesLoading = signal(true);
   readonly submitting = signal(false);
   readonly submitError = signal<string | null>(null);
+  readonly pendingMpPayment = signal<{ orderNumber: string; phone: string } | null>(null);
   readonly shippingCost = signal(0);
   readonly total = computed(() => this.cartService.total() + this.shippingCost());
 
@@ -292,6 +315,7 @@ export class CheckoutComponent implements OnInit {
 
     this.submitting.set(true);
     this.submitError.set(null);
+    this.pendingMpPayment.set(null);
 
     try {
       const cartItems = this.cartService.items();
@@ -310,16 +334,54 @@ export class CheckoutComponent implements OnInit {
         })),
       });
 
-      this.cartService.clearCart();
       localStorage.setItem(
         'last_order',
         JSON.stringify({ orderNumber, phone: this.formData.phone }),
       );
-      this.router.navigate(['/order-confirmation'], { queryParams: { orderNumber } });
+
+      if (this.formData.paymentMethod === 'mercadopago') {
+        await this.redirectToMercadoPago(orderNumber, this.formData.phone);
+      } else {
+        this.cartService.clearCart();
+        this.router.navigate(['/order-confirmation'], { queryParams: { orderNumber } });
+      }
     } catch {
       this.submitError.set('Ocurrió un error al procesar tu pedido. Por favor intentá de nuevo.');
     } finally {
       this.submitting.set(false);
+    }
+  }
+
+  async retryMpPayment(): Promise<void> {
+    const pending = this.pendingMpPayment();
+    if (!pending) return;
+
+    this.submitting.set(true);
+    this.submitError.set(null);
+
+    try {
+      const paymentUrl = await this.orderService.getMpPaymentUrl(pending.orderNumber, pending.phone);
+      window.location.href = paymentUrl;
+    } catch {
+      this.submitError.set('No pudimos generar el link de pago. Por favor intentá nuevamente.');
+    } finally {
+      this.submitting.set(false);
+    }
+  }
+
+  private async redirectToMercadoPago(orderNumber: string, phone: string): Promise<void> {
+    try {
+      const paymentUrl = await this.orderService.getMpPaymentUrl(orderNumber, phone);
+      // Clear the cart only here: the user is leaving the site to pay,
+      // so the cart is no longer needed. If getMpPaymentUrl failed, the
+      // cart is intentionally preserved so the order is still recoverable.
+      this.cartService.clearCart();
+      window.location.href = paymentUrl;
+    } catch {
+      this.pendingMpPayment.set({ orderNumber, phone });
+      this.submitError.set(
+        'Tu pedido fue registrado pero no pudimos generar el link de pago de Mercado Pago.',
+      );
     }
   }
 

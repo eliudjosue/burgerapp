@@ -103,4 +103,14 @@ export class OrderService {
     if (error) throw error;
     return data as string;
   }
+
+  async getMpPaymentUrl(orderNumber: string, customerPhone: string): Promise<string> {
+    const { data, error } = await this.supabase.client.functions.invoke<{ payment_url: string }>(
+      'create-mp-preference',
+      { body: { order_number: orderNumber, customer_phone: customerPhone } },
+    );
+    if (error) throw error;
+    if (!data?.payment_url) throw new Error('No se recibió URL de pago');
+    return data.payment_url;
+  }
 }

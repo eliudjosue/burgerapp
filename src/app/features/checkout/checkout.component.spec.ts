@@ -39,6 +39,8 @@ class CartServiceStub {
 class OrderServiceStub {
   loadDeliveryZones = (): Promise<DeliveryZone[]> => Promise.resolve([]);
   createOrder = (_: CreateOrderPayload): Promise<string> => Promise.resolve('');
+  getMpPaymentUrl = (_orderNumber: string, _phone: string): Promise<string> =>
+    Promise.resolve('https://sandbox.mercadopago.com.ar/checkout/v1/redirect?pref_id=test');
 }
 
 describe('CheckoutComponent', () => {
@@ -227,5 +229,160 @@ describe('CheckoutComponent', () => {
     await component.onSubmit();
 
     expect(localStorage.getItem('last_order')).toBeNull();
+  });
+});
+
+describe('CheckoutComponent — Mercado Pago flow', () => {
+  let cartStub: CartServiceStub;
+  let orderStub: OrderServiceStub;
+
+  beforeEach(async () => {
+    localStorage.clear();
+    // Replace window.location with a plain object so href assignments don't
+    // throw in jsdom and are observable in assertions.
+    Object.defineProperty(window, 'location', {
+      value: { href: '' },
+      writable: true,
+      configurable: true,
+    });
+
+    await TestBed.configureTestingModule({
+      imports: [CheckoutComponent],
+      providers: [
+        provideRouter([]),
+        { provide: CartService, useClass: CartServiceStub },
+        { provide: OrderService, useClass: OrderServiceStub },
+      ],
+    }).compileComponents();
+
+    cartStub = TestBed.inject(CartService) as unknown as CartServiceStub;
+    orderStub = TestBed.inject(OrderService) as unknown as OrderServiceStub;
+  });
+
+  async function submitMpForm(component: CheckoutComponent): Promise<void> {
+    component.formData.customerName = 'Juan';
+    component.formData.phone = '1134567890';
+    component.formData.paymentMethod = 'mercadopago';
+    await component.onSubmit();
+  }
+
+  it('should redirect to payment_url when MP preference succeeds', async () => {
+    const MP_URL = 'https://sandbox.mercadopago.com.ar/checkout/v1/redirect?pref_id=abc';
+    orderStub.createOrder = vi.fn(() => Promise.resolve('MP001')) as unknown as typeof orderStub.createOrder;
+    orderStub.getMpPaymentUrl = vi.fn(() => Promise.resolve(MP_URL)) as unknown as typeof orderStub.getMpPaymentUrl;
+    cartStub.setItems([{ product: MOCK_PRODUCT, quantity: 1 }]);
+
+    const fixture = TestBed.createComponent(CheckoutComponent);
+    await fixture.componentInstance.ngOnInit();
+    await submitMpForm(fixture.componentInstance);
+
+    expect(orderStub.getMpPaymentUrl).toHaveBeenCalledWith('MP001', '1134567890');
+    expect(window.location.href).toBe(MP_URL);
+  });
+
+  it('should not navigate to order-confirmation when MP is selected', async () => {
+    orderStub.createOrder = vi.fn(() => Promise.resolve('MP001')) as unknown as typeof orderStub.createOrder;
+    cartStub.setItems([{ product: MOCK_PRODUCT, quantity: 1 }]);
+
+    const fixture = TestBed.createComponent(CheckoutComponent);
+    const router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    await fixture.componentInstance.ngOnInit();
+    await submitMpForm(fixture.componentInstance);
+
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should set pendingMpPayment and submitError when MP preference call fails', async () => {
+    orderStub.createOrder = vi.fn(() => Promise.resolve('MP002')) as unknown as typeof orderStub.createOrder;
+    orderStub.getMpPaymentUrl = vi.fn(() => Promise.reject(new Error('MP error'))) as unknown as typeof orderStub.getMpPaymentUrl;
+    cartStub.setItems([{ product: MOCK_PRODUCT, quantity: 1 }]);
+
+    const fixture = TestBed.createComponent(CheckoutComponent);
+    await fixture.componentInstance.ngOnInit();
+    await submitMpForm(fixture.componentInstance);
+
+    expect(fixture.componentInstance.pendingMpPayment()).toEqual({ orderNumber: 'MP002', phone: '1134567890' });
+    expect(fixture.componentInstance.submitError()).toBeTruthy();
+  });
+
+  it('should clear cart when MP preference succeeds', async () => {
+    orderStub.createOrder = vi.fn(() => Promise.resolve('MP003')) as unknown as typeof orderStub.createOrder;
+    orderStub.getMpPaymentUrl = vi.fn(() => Promise.resolve('https://sandbox.mp.com/pay')) as unknown as typeof orderStub.getMpPaymentUrl;
+    cartStub.setItems([{ product: MOCK_PRODUCT, quantity: 1 }]);
+
+    const fixture = TestBed.createComponent(CheckoutComponent);
+    await fixture.componentInstance.ngOnInit();
+    await submitMpForm(fixture.componentInstance);
+
+    expect(cartStub.clearCart).toHaveBeenCalled();
+  });
+
+  it('should NOT clear cart when MP preference fails', async () => {
+    orderStub.createOrder = vi.fn(() => Promise.resolve('MP003B')) as unknown as typeof orderStub.createOrder;
+    orderStub.getMpPaymentUrl = vi.fn(() => Promise.reject(new Error('MP error'))) as unknown as typeof orderStub.getMpPaymentUrl;
+    cartStub.setItems([{ product: MOCK_PRODUCT, quantity: 1 }]);
+
+    const fixture = TestBed.createComponent(CheckoutComponent);
+    await fixture.componentInstance.ngOnInit();
+    await submitMpForm(fixture.componentInstance);
+
+    expect(cartStub.clearCart).not.toHaveBeenCalled();
+  });
+
+  it('should save last_order to localStorage even when MP preference fails', async () => {
+    orderStub.createOrder = vi.fn(() => Promise.resolve('MP003C')) as unknown as typeof orderStub.createOrder;
+    orderStub.getMpPaymentUrl = vi.fn(() => Promise.reject(new Error('MP error'))) as unknown as typeof orderStub.getMpPaymentUrl;
+    cartStub.setItems([{ product: MOCK_PRODUCT, quantity: 1 }]);
+
+    const fixture = TestBed.createComponent(CheckoutComponent);
+    await fixture.componentInstance.ngOnInit();
+    await submitMpForm(fixture.componentInstance);
+
+    const stored = localStorage.getItem('last_order');
+    expect(stored).not.toBeNull();
+    expect(JSON.parse(stored!)).toEqual({ orderNumber: 'MP003C', phone: '1134567890' });
+  });
+
+  it('should leave submitting false after MP preference fails', async () => {
+    orderStub.createOrder = vi.fn(() => Promise.resolve('MP004')) as unknown as typeof orderStub.createOrder;
+    orderStub.getMpPaymentUrl = vi.fn(() => Promise.reject(new Error('MP error'))) as unknown as typeof orderStub.getMpPaymentUrl;
+    cartStub.setItems([{ product: MOCK_PRODUCT, quantity: 1 }]);
+
+    const fixture = TestBed.createComponent(CheckoutComponent);
+    await fixture.componentInstance.ngOnInit();
+    await submitMpForm(fixture.componentInstance);
+
+    expect(fixture.componentInstance.submitting()).toBe(false);
+  });
+
+  it('should redirect on retry without calling createOrder again', async () => {
+    const RETRY_URL = 'https://sandbox.mercadopago.com.ar/checkout/v1/redirect?pref_id=retry';
+    orderStub.createOrder = vi.fn(() => Promise.resolve('')) as unknown as typeof orderStub.createOrder;
+    orderStub.getMpPaymentUrl = vi.fn(() => Promise.resolve(RETRY_URL)) as unknown as typeof orderStub.getMpPaymentUrl;
+
+    const fixture = TestBed.createComponent(CheckoutComponent);
+    fixture.componentInstance.pendingMpPayment.set({ orderNumber: 'MP005', phone: '1134567890' });
+
+    await fixture.componentInstance.retryMpPayment();
+
+    expect(orderStub.getMpPaymentUrl).toHaveBeenCalledWith('MP005', '1134567890');
+    expect(orderStub.createOrder).not.toHaveBeenCalled();
+    expect(window.location.href).toBe(RETRY_URL);
+  });
+
+  it('should show submitError and keep pendingMpPayment when retry also fails', async () => {
+    orderStub.getMpPaymentUrl = vi.fn(() => Promise.reject(new Error('still down'))) as unknown as typeof orderStub.getMpPaymentUrl;
+
+    const fixture = TestBed.createComponent(CheckoutComponent);
+    const component = fixture.componentInstance;
+    component.pendingMpPayment.set({ orderNumber: 'MP006', phone: '1134567890' });
+
+    await component.retryMpPayment();
+
+    expect(component.pendingMpPayment()).toEqual({ orderNumber: 'MP006', phone: '1134567890' });
+    expect(component.submitError()).toBeTruthy();
+    expect(component.submitting()).toBe(false);
   });
 });

@@ -17,6 +17,7 @@ const MOCK_CATEGORIES: AdminCategory[] = [
     description: 'Hamburguesas de la casa',
     sort_order: 1,
     is_active: true,
+    image_url: null,
   },
   {
     id: 'bebidas',
@@ -24,6 +25,7 @@ const MOCK_CATEGORIES: AdminCategory[] = [
     description: 'Bebidas y refrescos',
     sort_order: 3,
     is_active: true,
+    image_url: null,
   },
   {
     id: 'combos',
@@ -31,6 +33,7 @@ const MOCK_CATEGORIES: AdminCategory[] = [
     description: 'Combos especiales',
     sort_order: 4,
     is_active: false,
+    image_url: null,
   },
 ];
 
@@ -40,6 +43,7 @@ const MOCK_NEW_CATEGORY: AdminCategory = {
   description: null,
   sort_order: 10,
   is_active: true,
+  image_url: null,
 };
 
 // ── Stub helpers ──────────────────────────────────────────────────────────────
