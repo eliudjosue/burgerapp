@@ -9,11 +9,12 @@ import { RouterLink } from '@angular/router';
 import { ProductService } from '../../../core/services/product.service';
 import { SiteSettingsService, SiteSettingsData } from '../../../core/services/site-settings.service';
 import type { Product, Category } from '../../../core/mock-data';
+import { ProductImagePlaceholderComponent } from '../../../shared/components/product-image-placeholder/product-image-placeholder.component';
 
 @Component({
   selector: 'app-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, ProductImagePlaceholderComponent],
   template: `
     @if (isLoading()) {
       <div class="container mx-auto px-4 py-16 text-center">
@@ -29,7 +30,17 @@ import type { Product, Category } from '../../../core/mock-data';
       <main class="container mx-auto px-4 py-8">
         <!-- Banner Principal -->
         <section class="text-center mb-16">
-          <div class="bg-gray-200 border-2 border-dashed rounded-xl w-full h-64 md:h-80 mb-6"></div>
+          <div class="rounded-xl w-full h-64 md:h-80 mb-6 overflow-hidden relative">
+            @if (settings()?.bannerImageUrl) {
+              <img
+                [src]="settings()!.bannerImageUrl"
+                alt="Banner"
+                class="w-full h-full object-cover"
+              >
+            } @else {
+              <app-product-image-placeholder class="absolute inset-0" />
+            }
+          </div>
           <h1 class="h1 text-fg mb-4">{{ settings()?.bannerTitle }}</h1>
           <p class="body text-muted max-w-2xl mx-auto mb-6">
             {{ settings()?.bannerSubtitle }}
@@ -37,7 +48,7 @@ import type { Product, Category } from '../../../core/mock-data';
           @if (settings()?.bannerButtonText) {
             <a
               [routerLink]="settings()!.bannerButtonLink"
-              class="bg-accent text-accent-on px-6 py-3 rounded-md text-lg font-medium hover:bg-orange-700 transition-colors inline-block"
+              class="bg-accent text-accent-on px-6 py-3 rounded-md text-lg font-medium hover:bg-accent/90 transition-colors inline-block"
             >
               {{ settings()!.bannerButtonText }}
             </a>
@@ -60,7 +71,7 @@ import type { Product, Category } from '../../../core/mock-data';
                 [href]="'https://wa.me/' + settings()!.whatsappNumber"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="bg-success text-accent-on px-6 py-4 rounded-md text-lg font-medium hover:bg-green-700 transition-colors inline-flex items-center"
+                class="bg-success text-accent-on px-6 py-4 rounded-md text-lg font-medium hover:bg-success/90 transition-colors inline-flex items-center"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12l2-2m0 0l7-7m-7 7l-2-2m2 2l-2 2m2-2v8m6-8v8m-6-8a2 2 0 01-2-2V4a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2z" />
@@ -71,13 +82,23 @@ import type { Product, Category } from '../../../core/mock-data';
           </section>
         }
 
-        <!-- Categorías (mock mientras no se conecte a Supabase) -->
+        <!-- Categorías -->
         <section class="mb-16">
           <h2 class="h2 text-fg mb-6 text-center">Nuestras Categorías</h2>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             @for (category of categories(); track category.id) {
               <div class="bg-surface rounded-md p-4 border border-border text-center hover:shadow-md transition-shadow">
-                <div class="bg-gray-200 border-2 border-dashed rounded-xl w-full h-24 mb-2"></div>
+                <div class="rounded-lg w-full h-24 mb-2 overflow-hidden relative">
+                  @if (category.imageUrl) {
+                    <img
+                      [src]="category.imageUrl"
+                      [alt]="category.name"
+                      class="w-full h-full object-cover"
+                    >
+                  } @else {
+                    <app-product-image-placeholder class="absolute inset-0" />
+                  }
+                </div>
                 <h3 class="h3 text-fg">{{ category.name }}</h3>
               </div>
             }
@@ -90,7 +111,17 @@ import type { Product, Category } from '../../../core/mock-data';
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @for (product of featuredProducts(); track product.id) {
               <div class="bg-surface rounded-md overflow-hidden border border-border shadow-sm">
-                <div class="bg-gray-200 border-2 border-dashed rounded-xl w-full h-48"></div>
+                <div class="w-full h-48 relative">
+                  @if (product.imageUrl) {
+                    <img
+                      [src]="product.imageUrl"
+                      [alt]="product.name"
+                      class="w-full h-full object-cover"
+                    >
+                  } @else {
+                    <app-product-image-placeholder class="absolute inset-0" />
+                  }
+                </div>
                 <div class="p-4">
                   <h3 class="h3 text-fg mb-2">{{ product.name }}</h3>
                   <p class="small text-muted mb-3">{{ product.description }}</p>
@@ -98,7 +129,7 @@ import type { Product, Category } from '../../../core/mock-data';
                     <span class="body font-bold text-accent">{{ product.price }}</span>
                     <a
                       [routerLink]="['/product', product.id]"
-                      class="bg-accent text-accent-on px-4 py-2 rounded-md text-sm font-medium hover:bg-orange-700 transition-colors"
+                      class="bg-accent text-accent-on px-4 py-2 rounded-md text-sm font-medium hover:bg-accent/90 transition-colors"
                     >
                       Ver producto
                     </a>
@@ -117,7 +148,7 @@ import type { Product, Category } from '../../../core/mock-data';
           </p>
           <a
             routerLink="/catalog"
-            class="bg-accent text-accent-on px-6 py-3 rounded-md text-lg font-medium hover:bg-orange-700 transition-colors"
+            class="bg-accent text-accent-on px-6 py-3 rounded-md text-lg font-medium hover:bg-accent/90 transition-colors"
           >
             Ver Catálogo
           </a>

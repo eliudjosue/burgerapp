@@ -9,6 +9,7 @@ import {
 import { Router } from '@angular/router';
 import { SupabaseClientService } from '../../../../core/supabase.client';
 import { AuthService } from '../../../../core/services/auth.service';
+import { StorageService } from '../../../../core/services/storage.service';
 
 export interface AdminCategory {
   id: string;
@@ -16,6 +17,7 @@ export interface AdminCategory {
   description: string | null;
   sort_order: number;
   is_active: boolean;
+  image_url: string | null;
 }
 
 interface DeactivationPending {
@@ -225,6 +227,29 @@ interface DeactivationPending {
                         {{ cat.sort_order }}
                       </span>
 
+                      <!-- Thumbnail -->
+                      @if (cat.image_url) {
+                        <img
+                          [src]="cat.image_url"
+                          [alt]="cat.name"
+                          class="w-10 h-10 rounded-md object-cover shrink-0 border border-border"
+                        />
+                      } @else {
+                        <div
+                          class="w-10 h-10 rounded-md bg-border/30 shrink-0
+                                 flex items-center justify-center"
+                          aria-hidden="true"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                               stroke="currentColor" stroke-width="1.5"
+                               class="text-muted opacity-40">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <path d="M21 15l-5-5L5 21"/>
+                          </svg>
+                        </div>
+                      }
+
                       <!-- Info -->
                       <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
@@ -320,6 +345,66 @@ interface DeactivationPending {
               <p class="text-[13px] text-danger">{{ saveError() }}</p>
             </div>
           }
+
+          <!-- Section: Imagen -->
+          <div class="bg-surface border border-border rounded-lg p-4 mb-3">
+            <p class="text-[11px] font-mono font-semibold uppercase tracking-wider
+                      text-muted mb-4">
+              Imagen
+            </p>
+
+            @if (fImageUrl()) {
+              <div class="relative mb-3 rounded-lg overflow-hidden">
+                <img
+                  [src]="fImageUrl()"
+                  alt="Vista previa"
+                  class="w-full max-h-40 object-cover"
+                />
+                <button
+                  type="button"
+                  (click)="fImageUrl.set(null)"
+                  class="absolute top-2 right-2 w-7 h-7 rounded-full
+                         bg-[rgba(28,26,23,0.7)] text-white flex items-center
+                         justify-center cursor-pointer border-0
+                         hover:bg-[rgba(28,26,23,0.9)] transition-colors"
+                  aria-label="Quitar imagen"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            }
+
+            @if (uploadImageError()) {
+              <p role="alert" class="text-[12px] text-danger mb-2">
+                {{ uploadImageError() }}
+              </p>
+            }
+
+            <label class="block">
+              <span class="text-[13px] font-medium text-muted block mb-1">
+                {{ fImageUrl() ? 'Cambiar imagen' : 'Subir imagen' }}
+              </span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                (change)="onImageSelected($event)"
+                [disabled]="uploadingImage()"
+                class="block text-[13px] text-muted cursor-pointer w-full
+                       file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0
+                       file:text-[12px] file:font-semibold file:bg-surface
+                       file:text-fg file:cursor-pointer hover:file:bg-border/40
+                       file:transition-colors"
+              />
+            </label>
+            @if (uploadingImage()) {
+              <p class="text-[12px] text-muted mt-1">Subiendo imagen…</p>
+            } @else {
+              <p class="text-[11px] text-muted mt-1">JPG, PNG o WebP · máx 2 MB</p>
+            }
+          </div>
 
           <!-- Section: Datos básicos -->
           <div class="bg-surface border border-border rounded-lg p-4 mb-3">
@@ -424,6 +509,7 @@ export class AdminCategoriesComponent implements OnInit {
   private readonly supabase = inject(SupabaseClientService);
   readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly storageService = inject(StorageService);
 
   // ── List state ────────────────────────────────────────────────────────────
   readonly categories = signal<AdminCategory[]>([]);
@@ -442,6 +528,11 @@ export class AdminCategoriesComponent implements OnInit {
   readonly fDesc = signal('');
   readonly fSortOrder = signal('0');
   readonly fIsActive = signal(true);
+  readonly fImageUrl = signal<string | null>(null);
+
+  // ── Image upload state ────────────────────────────────────────────────────
+  readonly uploadingImage = signal(false);
+  readonly uploadImageError = signal<string | null>(null);
 
   // ── Form submit state ─────────────────────────────────────────────────────
   readonly saving = signal(false);
@@ -474,7 +565,7 @@ export class AdminCategoriesComponent implements OnInit {
     try {
       const { data, error } = await this.supabase.client
         .from('categories')
-        .select('id, name, description, sort_order, is_active')
+        .select('id, name, description, sort_order, is_active, image_url')
         .order('sort_order')
         .order('name');
       if (error) throw error;
@@ -493,6 +584,8 @@ export class AdminCategoriesComponent implements OnInit {
     this.fDesc.set('');
     this.fSortOrder.set(this.nextSortOrderDefault());
     this.fIsActive.set(true);
+    this.fImageUrl.set(null);
+    this.uploadImageError.set(null);
     this.saveError.set(null);
     this.triedSave.set(false);
     this.view.set('form');
@@ -504,6 +597,8 @@ export class AdminCategoriesComponent implements OnInit {
     this.fDesc.set(category.description ?? '');
     this.fSortOrder.set(String(category.sort_order));
     this.fIsActive.set(category.is_active);
+    this.fImageUrl.set(category.image_url);
+    this.uploadImageError.set(null);
     this.saveError.set(null);
     this.triedSave.set(false);
     this.view.set('form');
@@ -512,6 +607,7 @@ export class AdminCategoriesComponent implements OnInit {
   cancelForm(): void {
     this.view.set('list');
     this.editingCategory.set(null);
+    this.uploadImageError.set(null);
   }
 
   // ── Save ──────────────────────────────────────────────────────────────────
@@ -528,6 +624,7 @@ export class AdminCategoriesComponent implements OnInit {
         description: this.fDesc().trim() || null,
         sort_order: parseInt(this.fSortOrder(), 10),
         is_active: this.fIsActive(),
+        image_url: this.fImageUrl(),
       };
 
       if (editing === null) {
@@ -535,7 +632,7 @@ export class AdminCategoriesComponent implements OnInit {
         const { data, error } = await this.supabase.client
           .from('categories')
           .insert({ id, ...payload })
-          .select('id, name, description, sort_order, is_active')
+          .select('id, name, description, sort_order, is_active, image_url')
           .single();
         if (error) {
           if (error.code === '23505') {
@@ -614,6 +711,25 @@ export class AdminCategoriesComponent implements OnInit {
 
   cancelDeactivation(): void {
     this.pendingDeactivation.set(null);
+  }
+
+  // ── Image upload ──────────────────────────────────────────────────────────
+  async onImageSelected(event: Event): Promise<void> {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    this.uploadImageError.set(null);
+    this.uploadingImage.set(true);
+    try {
+      const url = await this.storageService.uploadCategoryImage(file);
+      this.fImageUrl.set(url);
+    } catch (err) {
+      this.uploadImageError.set(
+        err instanceof Error ? err.message : 'Error al subir la imagen.',
+      );
+    } finally {
+      this.uploadingImage.set(false);
+    }
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────

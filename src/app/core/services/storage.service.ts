@@ -54,4 +54,8 @@ export class StorageService {
   async uploadSiteAsset(file: File): Promise<string> {
     return this.uploadImage('site-assets', 'site', file);
   }
+
+  async uploadCategoryImage(file: File): Promise<string> {
+    return this.uploadImage('site-assets', 'categories', file);
+  }
 }

@@ -1,12 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { CartService } from '../../core/services/cart.service';
+import { ProductImagePlaceholderComponent } from '../../shared/components/product-image-placeholder/product-image-placeholder.component';
 
 @Component({
   selector: 'app-cart',
-  standalone: true,
-  imports: [RouterLink, CurrencyPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink, CurrencyPipe, ProductImagePlaceholderComponent],
   template: `
     <div class="container mx-auto px-4 py-8">
       <h1 class="h1 mb-8 text-center">Tu Carrito</h1>
@@ -36,14 +37,14 @@ import { CartService } from '../../core/services/cart.service';
                 <div class="p-6 border-b border-border last:border-b-0">
                   <div class="flex items-start gap-4">
                     <!-- Product image -->
-                    @if (item.product.imageUrl) {
-                      <img [src]="item.product.imageUrl" [alt]="item.product.name"
-                        class="w-20 h-20 object-cover rounded-md flex-shrink-0" />
-                    } @else {
-                      <div class="w-20 h-20 bg-border rounded-md flex-shrink-0 flex items-center justify-center">
-                        <span class="text-muted text-xs">sin foto</span>
-                      </div>
-                    }
+                    <div class="w-20 h-20 rounded-md flex-shrink-0 overflow-hidden relative">
+                      @if (item.product.imageUrl) {
+                        <img [src]="item.product.imageUrl" [alt]="item.product.name"
+                          class="w-full h-full object-cover" />
+                      } @else {
+                        <app-product-image-placeholder class="absolute inset-0" />
+                      }
+                    </div>
 
                     <!-- Product info -->
                     <div class="flex-1 min-w-0">

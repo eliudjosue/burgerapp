@@ -4,11 +4,12 @@ import { CurrencyPipe } from '@angular/common';
 import { CartService } from '../../../core/services/cart.service';
 import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../core/mock-data';
+import { ProductImagePlaceholderComponent } from '../../../shared/components/product-image-placeholder/product-image-placeholder.component';
 
 @Component({
   selector: 'app-product-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CurrencyPipe, RouterLink],
+  imports: [CurrencyPipe, RouterLink, ProductImagePlaceholderComponent],
   template: `
     <div class="max-w-4xl mx-auto">
       <div class="flex items-center mb-6">
@@ -23,11 +24,17 @@ import { Product } from '../../../core/mock-data';
         </div>
       } @else if (product(); as product) {
         <div class="bg-surface border border-border rounded-md overflow-hidden">
-          <img
-            [src]="product.imageUrl"
-            [alt]="product.name"
-            class="w-full aspect-[16/10] object-cover"
-          >
+          <div class="w-full aspect-[16/10] relative">
+            @if (product.imageUrl) {
+              <img
+                [src]="product.imageUrl"
+                [alt]="product.name"
+                class="w-full h-full object-cover"
+              >
+            } @else {
+              <app-product-image-placeholder class="absolute inset-0" />
+            }
+          </div>
 
           <div class="p-6">
             <h1 class="h1 mb-2">{{ product.name }}</h1>

@@ -17,6 +17,7 @@ interface DbCategory {
   id: string;
   name: string;
   description: string | null;
+  image_url: string | null;
 }
 
 interface DbComboItemRow {
@@ -92,7 +93,7 @@ export class ProductService {
   async loadCatalogCategories(): Promise<Category[]> {
     const { data, error } = await this.supabase.client
       .from('categories')
-      .select('id, name, description')
+      .select('id, name, description, image_url')
       .eq('is_active', true)
       .order('sort_order');
 
@@ -102,6 +103,7 @@ export class ProductService {
       id: row.id,
       name: row.name,
       description: row.description ?? undefined,
+      imageUrl: row.image_url ?? undefined,
     }));
   }
 

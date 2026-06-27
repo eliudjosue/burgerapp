@@ -152,6 +152,46 @@ export interface DashboardMetrics {
                   <div class="text-[11px] text-muted">Historial</div>
                 </div>
               </a>
+              <a
+                routerLink="/staff/admin/delivery-zones"
+                class="bg-surface border border-border rounded-lg p-4 flex items-center
+                       gap-3 no-underline hover:border-accent/30 transition-colors"
+                aria-label="Gestión de zonas de delivery"
+              >
+                <div class="w-8 h-8 rounded-lg bg-accent-soft flex items-center
+                            justify-center shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2"
+                       class="text-accent" aria-hidden="true">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-[13px] font-semibold text-fg">Zonas</div>
+                  <div class="text-[11px] text-muted">Delivery</div>
+                </div>
+              </a>
+              <a
+                routerLink="/staff/admin/settings"
+                class="bg-surface border border-border rounded-lg p-4 flex items-center
+                       gap-3 no-underline hover:border-accent/30 transition-colors"
+                aria-label="Configuración del sitio"
+              >
+                <div class="w-8 h-8 rounded-lg bg-accent-soft flex items-center
+                            justify-center shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2"
+                       class="text-accent" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.4 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-[13px] font-semibold text-fg">Configuración</div>
+                  <div class="text-[11px] text-muted">Sitio</div>
+                </div>
+              </a>
             </div>
           </section>
 
