@@ -250,10 +250,10 @@ const SELECT_FIELDS =
                       @for (item of order.order_items; track item.product_name) {
                         <li class="flex justify-between items-center py-0.5">
                           <div class="flex items-center gap-2">
-                            <span class="font-mono text-[11px] text-muted min-w-[24px]">
+                            <span class="font-mono text-[11px] text-muted min-w-[24px] shrink-0">
                               ×{{ item.quantity }}
                             </span>
-                            <span class="text-[13px]">{{ item.product_name }}</span>
+                            <span class="text-[13px] break-words min-w-0">{{ item.product_name }}</span>
                           </div>
                           <span class="font-mono text-[12px] text-muted tabular-nums">
                             {{ formatCurrency(item.line_total) }}
@@ -326,7 +326,7 @@ const SELECT_FIELDS =
                         <span class="font-bold text-[16px] tracking-[-0.01em] font-mono block">
                           {{ order.order_number }}
                         </span>
-                        <span class="text-[12px] text-muted">
+                        <span class="text-[12px] text-muted truncate block">
                           {{ order.customer_name }}
                           <span class="font-mono">· {{ order.customer_phone }}</span>
                         </span>
@@ -368,10 +368,10 @@ const SELECT_FIELDS =
                         @for (item of order.order_items; track item.product_name) {
                           <li class="flex justify-between items-center py-0.5">
                             <div class="flex items-center gap-1.5">
-                              <span class="font-mono text-[11px] text-muted">
+                              <span class="font-mono text-[11px] text-muted shrink-0">
                                 ×{{ item.quantity }}
                               </span>
-                              <span class="text-[12px]">{{ item.product_name }}</span>
+                              <span class="text-[12px] break-words min-w-0">{{ item.product_name }}</span>
                             </div>
                             <span class="font-mono text-[11px] text-muted tabular-nums">
                               {{ formatCurrency(item.line_total) }}

@@ -39,12 +39,12 @@ interface Product {
         }
       </a>
       <div class="p-4">
-        <h3 class="h3 mb-1">
+        <h3 class="h3 mb-1 break-words">
           <a [routerLink]="['/product', product().id]" class="text-inherit hover:text-accent">
             {{ product().name }}
           </a>
         </h3>
-        <p class="small text-muted mb-2">{{ product().description }}</p>
+        <p class="small text-muted mb-2 break-words">{{ product().description }}</p>
         <div class="flex justify-between items-center">
           <span class="text-lg font-semibold text-accent">$ {{ product().price }}</span>
           <button

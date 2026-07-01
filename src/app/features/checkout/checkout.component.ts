@@ -232,9 +232,9 @@ import { OrderService, DeliveryZone } from '../../core/services/order.service';
 
               <div class="space-y-3 mb-6">
                 @for (item of cartService.items(); track item.product.id) {
-                  <div class="flex justify-between items-center">
-                    <span class="font-medium">{{ item.product.name }} x{{ item.quantity }}</span>
-                    <span class="font-medium">{{ item.product.price * item.quantity | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+                  <div class="flex justify-between items-start gap-2">
+                    <span class="font-medium min-w-0 break-words">{{ item.product.name }} x{{ item.quantity }}</span>
+                    <span class="font-medium shrink-0">{{ item.product.price * item.quantity | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
                   </div>
                 }
               </div>

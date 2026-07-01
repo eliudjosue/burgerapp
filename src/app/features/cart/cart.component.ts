@@ -48,8 +48,8 @@ import { ProductImagePlaceholderComponent } from '../../shared/components/produc
 
                     <!-- Product info -->
                     <div class="flex-1 min-w-0">
-                      <h3 class="h3 text-fg mb-1">{{ item.product.name }}</h3>
-                      <p class="small text-muted mb-3">{{ item.product.description }}</p>
+                      <h3 class="h3 text-fg mb-1 break-words">{{ item.product.name }}</h3>
+                      <p class="small text-muted mb-3 break-words">{{ item.product.description }}</p>
 
                       <!-- Quantity + subtotal row -->
                       <div class="flex items-center justify-between">

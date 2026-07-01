@@ -186,8 +186,8 @@ type NextStatus = 'preparing' | 'ready';
                 <ul class="text-[13px] leading-relaxed mb-2 list-none p-0 m-0">
                   @for (item of order.order_items; track item.product_name) {
                     <li class="flex gap-2 py-px">
-                      <span class="font-mono text-muted min-w-[24px]">×{{ item.quantity }}</span>
-                      <span>{{ item.product_name }}</span>
+                      <span class="font-mono text-muted min-w-[24px] shrink-0">×{{ item.quantity }}</span>
+                      <span class="break-words min-w-0">{{ item.product_name }}</span>
                     </li>
                   }
                 </ul>
@@ -255,8 +255,8 @@ type NextStatus = 'preparing' | 'ready';
                 <ul class="text-[13px] leading-relaxed mb-2 list-none p-0 m-0">
                   @for (item of order.order_items; track item.product_name) {
                     <li class="flex gap-2 py-px">
-                      <span class="font-mono text-muted min-w-[24px]">×{{ item.quantity }}</span>
-                      <span>{{ item.product_name }}</span>
+                      <span class="font-mono text-muted min-w-[24px] shrink-0">×{{ item.quantity }}</span>
+                      <span class="break-words min-w-0">{{ item.product_name }}</span>
                     </li>
                   }
                 </ul>
@@ -324,8 +324,8 @@ type NextStatus = 'preparing' | 'ready';
                 <ul class="text-[13px] leading-relaxed mb-2 list-none p-0 m-0">
                   @for (item of order.order_items; track item.product_name) {
                     <li class="flex gap-2 py-px">
-                      <span class="font-mono text-muted min-w-[24px]">×{{ item.quantity }}</span>
-                      <span>{{ item.product_name }}</span>
+                      <span class="font-mono text-muted min-w-[24px] shrink-0">×{{ item.quantity }}</span>
+                      <span class="break-words min-w-0">{{ item.product_name }}</span>
                     </li>
                   }
                 </ul>

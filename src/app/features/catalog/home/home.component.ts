@@ -99,7 +99,7 @@ import { ProductImagePlaceholderComponent } from '../../../shared/components/pro
                     <app-product-image-placeholder class="absolute inset-0" />
                   }
                 </div>
-                <h3 class="h3 text-fg">{{ category.name }}</h3>
+                <h3 class="h3 text-fg break-words">{{ category.name }}</h3>
               </div>
             }
           </div>
@@ -123,8 +123,8 @@ import { ProductImagePlaceholderComponent } from '../../../shared/components/pro
                   }
                 </div>
                 <div class="p-4">
-                  <h3 class="h3 text-fg mb-2">{{ product.name }}</h3>
-                  <p class="small text-muted mb-3">{{ product.description }}</p>
+                  <h3 class="h3 text-fg mb-2 break-words">{{ product.name }}</h3>
+                  <p class="small text-muted mb-3 break-words">{{ product.description }}</p>
                   <div class="flex justify-between items-center">
                     <span class="body font-bold text-accent">{{ product.price }}</span>
                     <a
