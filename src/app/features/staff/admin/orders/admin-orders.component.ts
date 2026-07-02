@@ -17,7 +17,8 @@ export type OrderStatus =
   | 'ready'
   | 'on_the_way'
   | 'delivered'
-  | 'cancelled';
+  | 'cancelled'
+  | 'rejected';
 
 export type PaymentMethod = 'cash' | 'transfer' | 'mercadopago';
 export type PaymentStatus = 'pending_confirmation' | 'confirmed';
@@ -69,6 +70,7 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   on_the_way: 'En camino',
   delivered: 'Entregado',
   cancelled: 'Cancelado',
+  rejected:  'Rechazado',
 };
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
@@ -223,6 +225,7 @@ const BADGE_BASE = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-[10
                   <option value="on_the_way">En camino</option>
                   <option value="delivered">Entregado</option>
                   <option value="cancelled">Cancelado</option>
+                  <option value="rejected">Rechazado</option>
                 </select>
               </label>
 
@@ -833,6 +836,7 @@ export class AdminOrdersComponent implements OnInit {
       on_the_way: 'bg-accent-soft text-accent',
       delivered:  'bg-success-soft text-success',
       cancelled:  'bg-danger-soft text-danger',
+      rejected:   'bg-orange-soft text-orange',
     };
     return `${BADGE_BASE} ${colorMap[status] ?? 'bg-border text-muted'}`;
   }

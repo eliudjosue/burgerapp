@@ -285,18 +285,33 @@ const SELECT_FIELDS =
                         {{ order.comments }}
                       </p>
                     }
-                    <button
-                      type="button"
-                      (click)="confirmOrder(order)"
-                      [disabled]="confirmingOrder() === order.id"
-                      class="w-full py-2 rounded-lg text-[13px] font-semibold border-0
-                             bg-accent text-white hover:opacity-90 active:scale-[0.97]
-                             transition-all disabled:opacity-60 disabled:cursor-not-allowed
-                             cursor-pointer"
-                      [attr.aria-label]="'Confirmar pedido ' + order.order_number"
-                    >
-                      {{ confirmingOrder() === order.id ? 'Confirmando…' : 'Confirmar pedido' }}
-                    </button>
+                    <div class="flex gap-2">
+                      <button
+                        type="button"
+                        (click)="confirmOrder(order)"
+                        [disabled]="confirmingOrder() === order.id"
+                        class="flex-1 py-2 rounded-lg text-[13px] font-semibold border-0
+                               bg-accent text-white hover:opacity-90 active:scale-[0.97]
+                               transition-all disabled:opacity-60 disabled:cursor-not-allowed
+                               cursor-pointer"
+                        [attr.aria-label]="'Confirmar pedido ' + order.order_number"
+                      >
+                        {{ confirmingOrder() === order.id ? 'Confirmando…' : 'Confirmar pedido' }}
+                      </button>
+                      <button
+                        type="button"
+                        (click)="openRejectModal(order)"
+                        [disabled]="confirmingOrder() === order.id"
+                        class="py-2 px-3 rounded-lg text-[13px] font-semibold
+                               border border-danger/40 bg-danger-soft text-danger
+                               hover:bg-danger hover:text-white active:scale-[0.97]
+                               transition-all disabled:opacity-60 disabled:cursor-not-allowed
+                               cursor-pointer"
+                        [attr.aria-label]="'Rechazar pedido ' + order.order_number"
+                      >
+                        Rechazar
+                      </button>
+                    </div>
                   </div>
                 </article>
               }
@@ -504,6 +519,71 @@ const SELECT_FIELDS =
 
         </div>
       }
+      <!-- ═══ MODAL: Rechazar pedido ═══ -->
+      @if (rejectModalOrderId() !== null) {
+        <div
+          class="fixed inset-0 z-40 bg-black/50"
+          (click)="closeRejectModal()"
+          aria-hidden="true"
+        ></div>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="reject-modal-title"
+          class="fixed inset-x-0 bottom-0 z-50 bg-surface rounded-t-2xl shadow-xl px-5 pt-5 pb-8"
+        >
+          <h2 id="reject-modal-title" class="text-[16px] font-semibold mb-1">
+            Rechazar pedido
+          </h2>
+          <p class="text-[13px] text-muted mb-4">
+            El pedido pasará a <span class="font-semibold text-danger">Rechazado</span>.
+            El reintegro se gestionará según el método de pago.
+          </p>
+          <label for="reject-reason-input"
+                 class="block text-[12px] font-medium text-muted mb-1.5">
+            Motivo <span aria-label="requerido" class="text-danger">*</span>
+          </label>
+          <textarea
+            id="reject-reason-input"
+            rows="3"
+            [value]="rejectReason()"
+            (input)="rejectReason.set($any($event.target).value)"
+            placeholder="Ej: Sin stock de ingredientes para este pedido"
+            [disabled]="rejectSubmitting()"
+            aria-required="true"
+            class="w-full text-[13px] px-3 py-2.5 rounded-lg border border-border
+                   focus:outline-none focus:border-danger bg-[#f5f4f1] resize-none
+                   disabled:opacity-60"
+          ></textarea>
+          @if (rejectError()) {
+            <p role="alert" class="text-[12px] text-danger mt-2">{{ rejectError() }}</p>
+          }
+          <div class="flex gap-2 mt-4">
+            <button
+              type="button"
+              (click)="closeRejectModal()"
+              [disabled]="rejectSubmitting()"
+              class="flex-1 py-2.5 rounded-lg text-[13px] text-muted border border-border
+                     bg-transparent hover:border-muted transition-colors
+                     cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              (click)="submitReject()"
+              [disabled]="rejectSubmitting() || rejectReason().trim().length === 0"
+              class="flex-1 py-2.5 rounded-lg text-[13px] font-semibold border-0
+                     bg-danger text-white hover:opacity-90 active:scale-[0.97]
+                     transition-all disabled:opacity-60 disabled:cursor-not-allowed
+                     cursor-pointer"
+            >
+              {{ rejectSubmitting() ? 'Rechazando…' : 'Confirmar rechazo' }}
+            </button>
+          </div>
+        </div>
+      }
+
     </div>
   `,
   styles: [
@@ -531,6 +611,11 @@ export class CashierComponent implements OnInit, OnDestroy {
   readonly expandedPaymentOrderId = signal<string | null>(null);
   readonly paymentNote = signal('');
   readonly submittingPayment = signal(false);
+
+  readonly rejectModalOrderId = signal<string | null>(null);
+  readonly rejectReason = signal('');
+  readonly rejectSubmitting = signal(false);
+  readonly rejectError = signal<string | null>(null);
 
   readonly pendingOrders = computed(() =>
     this.orders().filter(o => o.order_status === 'pending'),
@@ -611,6 +696,58 @@ export class CashierComponent implements OnInit, OnDestroy {
   cancelPaymentConfirm(): void {
     this.expandedPaymentOrderId.set(null);
     this.paymentNote.set('');
+  }
+
+  openRejectModal(order: CashierOrder): void {
+    this.rejectModalOrderId.set(order.id);
+    this.rejectReason.set('');
+    this.rejectError.set(null);
+    setTimeout(() =>
+      (document.getElementById('reject-reason-input') as HTMLTextAreaElement | null)?.focus(),
+    );
+  }
+
+  closeRejectModal(): void {
+    if (this.rejectSubmitting()) return;
+    this.rejectModalOrderId.set(null);
+    this.rejectReason.set('');
+    this.rejectError.set(null);
+  }
+
+  async submitReject(): Promise<void> {
+    const orderId = this.rejectModalOrderId();
+    if (!orderId) return;
+
+    this.rejectSubmitting.set(true);
+    this.rejectError.set(null);
+    try {
+      const { error } = await this.supabase.client.functions.invoke('refund-order', {
+        body: { action: 'reject', order_id: orderId, reason: this.rejectReason().trim() },
+      });
+
+      if (error) {
+        let message = 'Error al rechazar el pedido.';
+        try {
+          const ctx = (error as unknown as { context: Response }).context;
+          if (ctx) {
+            const body = (await ctx.json()) as { error?: string };
+            if (body.error) message = body.error;
+          } else if (error.message) {
+            message = error.message;
+          }
+        } catch { /* ignore parse error */ }
+        this.rejectError.set(message);
+        return;
+      }
+
+      this.orders.update(orders => orders.filter(o => o.id !== orderId));
+      this.rejectModalOrderId.set(null);
+      this.rejectReason.set('');
+    } catch {
+      this.rejectError.set('Error de conexión. Intentá de nuevo.');
+    } finally {
+      this.rejectSubmitting.set(false);
+    }
   }
 
   async submitPaymentConfirm(order: CashierOrder): Promise<void> {
@@ -744,7 +881,7 @@ export class CashierComponent implements OnInit, OnDestroy {
         this.showAlert(`Nuevo pedido ${row.order_number ?? ''}`);
       }
     } else {
-      // Order moved to delivered/cancelled — remove from view.
+      // Order moved to delivered/cancelled/rejected — remove from view.
       this.orders.update(orders => orders.filter(o => o.id !== row.id));
     }
   }

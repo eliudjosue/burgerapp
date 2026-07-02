@@ -12,6 +12,7 @@
   --color-success: #3E7A4F;
   --color-warn: #C08A2E;
   --color-danger: #A23E3E;
+  --color-orange: #C2612A;
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -76,6 +77,10 @@
 
 @utility bg-danger-soft {
   background-color: color-mix(in oklch, var(--color-danger) 14%, transparent);
+}
+
+@utility bg-orange-soft {
+  background-color: color-mix(in oklch, var(--color-orange) 14%, transparent);
 }
 
 @utility bg-fg-soft {

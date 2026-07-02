@@ -47,6 +47,7 @@ const STATUS_BADGE_CLASSES: Record<string, string> = {
   on_the_way: 'bg-accent-soft text-accent',
   delivered: 'bg-success-soft text-success',
   cancelled: 'bg-danger-soft text-danger',
+  rejected:  'bg-orange-soft text-orange',
 };
 
 const STATUS_DISPLAY: Record<string, string> = {
@@ -57,6 +58,7 @@ const STATUS_DISPLAY: Record<string, string> = {
   on_the_way: 'En camino',
   delivered: 'Entregado',
   cancelled: 'Cancelado',
+  rejected:  'Rechazado',
 };
 
 const STEP_DOT_CLASSES: Record<TimelineStepState, string> = {
@@ -226,8 +228,15 @@ const DELIVERY_STATUS_ORDER = [
             </div>
           }
 
+          <!-- Rejected notice -->
+          @if (order.orderStatus === 'rejected') {
+            <div class="bg-orange-soft border border-orange/20 rounded-md p-4 text-sm text-orange">
+              No pudimos tomar tu pedido esta vez. Si realizaste un pago, estamos gestionando el reintegro. Comunicate con nosotros si tenés dudas.
+            </div>
+          }
+
           <!-- Timeline -->
-          @if (order.orderStatus !== 'cancelled') {
+          @if (order.orderStatus !== 'cancelled' && order.orderStatus !== 'rejected') {
             <div class="bg-surface border border-border rounded-md p-5">
               <h3 class="text-sm font-semibold text-fg mb-5">Estado actual</h3>
               <ol class="relative pl-7" aria-label="Progreso del pedido">
@@ -279,7 +288,7 @@ export class OrderTrackingComponent implements OnInit {
     const statusOrder =
       order.deliveryType === 'delivery' ? DELIVERY_STATUS_ORDER : PICKUP_STATUS_ORDER;
 
-    if (order.orderStatus === 'cancelled') {
+    if (order.orderStatus === 'cancelled' || order.orderStatus === 'rejected') {
       return statusOrder.map(status => ({
         status,
         label: STATUS_LABELS[status] ?? status,

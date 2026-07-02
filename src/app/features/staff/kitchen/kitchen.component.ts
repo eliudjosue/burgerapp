@@ -501,7 +501,7 @@ export class KitchenComponent implements OnInit, OnDestroy {
         this.showAlert(`Nuevo pedido ${row.order_number ?? ''}`);
       }
     } else {
-      // Order moved beyond kitchen scope (delivered, on_the_way, cancelled…).
+      // Order moved beyond kitchen scope (delivered, on_the_way, cancelled, rejected…).
       this.orders.update(orders => orders.filter(o => o.id !== row.id));
     }
   }
