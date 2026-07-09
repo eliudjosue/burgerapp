@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -57,12 +58,15 @@ import { SiteSettingsService } from '../../../core/services/site-settings.servic
           <!-- Carrito pill — desktop -->
           <a routerLink="/cart"
              aria-label="Ir al carrito"
-             class="relative hidden md:inline-flex items-center gap-1.5 bg-accent text-accent-on px-4 py-2 rounded-full text-sm font-semibold hover:bg-accent/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
+             class="relative hidden md:inline-flex items-center gap-1.5 bg-accent text-accent-on px-4 py-2 rounded-full text-sm font-semibold hover:bg-accent/90 active:scale-95 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
             Carrito
-            <span class="absolute -top-2 -right-2 bg-fg text-surface text-xs font-bold rounded-full h-5 min-w-[1.25rem] px-1 flex items-center justify-center leading-none">
+            <span
+              class="absolute -top-2 -right-2 bg-fg text-surface text-xs font-bold rounded-full h-5 min-w-[1.25rem] px-1 flex items-center justify-center leading-none"
+              [class.badge-bump-anim]="badgePulse()"
+            >
               {{ cartService.itemCount() }}
             </span>
           </a>
@@ -74,7 +78,10 @@ import { SiteSettingsService } from '../../../core/services/site-settings.servic
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-fg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            <span class="absolute -top-1 -right-1 bg-accent text-accent-on text-xs font-bold rounded-full h-5 min-w-[1.25rem] px-1 flex items-center justify-center leading-none">
+            <span
+              class="absolute -top-1 -right-1 bg-accent text-accent-on text-xs font-bold rounded-full h-5 min-w-[1.25rem] px-1 flex items-center justify-center leading-none"
+              [class.badge-bump-anim]="badgePulse()"
+            >
               {{ cartService.itemCount() }}
             </span>
           </a>
@@ -94,7 +101,7 @@ import { SiteSettingsService } from '../../../core/services/site-settings.servic
             [attr.aria-expanded]="menuOpen()"
             [attr.aria-label]="menuOpen() ? 'Cerrar menú' : 'Abrir menú'"
             aria-controls="mobile-nav"
-            class="md:hidden flex items-center justify-center w-9 h-9 rounded-md text-fg hover:bg-fg-soft transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            class="md:hidden flex items-center justify-center w-9 h-9 rounded-md text-fg hover:bg-fg-soft active:scale-95 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             (click)="menuOpen.update(v => !v)"
           >
             @if (menuOpen()) {
@@ -147,6 +154,27 @@ export class HeaderComponent implements OnInit {
 
   readonly logoUrl = signal<string | null>(null);
   readonly menuOpen = signal(false);
+  readonly badgePulse = signal(false);
+  private badgePulseTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    let prevCount = this.cartService.itemCount();
+    effect(() => {
+      const count = this.cartService.itemCount();
+      if (count > prevCount) {
+        prevCount = count;
+        if (this.badgePulseTimer !== null) clearTimeout(this.badgePulseTimer);
+        // Reset first so the animation restarts cleanly on rapid adds
+        this.badgePulse.set(false);
+        setTimeout(() => {
+          this.badgePulse.set(true);
+          this.badgePulseTimer = setTimeout(() => this.badgePulse.set(false), 400);
+        }, 0);
+      } else {
+        prevCount = count;
+      }
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     try {

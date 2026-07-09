@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 import { ProductImagePlaceholderComponent } from '../../shared/components/product-image-placeholder/product-image-placeholder.component';
@@ -60,11 +60,23 @@ interface Product {
         <p class="small text-muted mb-2 break-words line-clamp-2">{{ product().description }}</p>
         <div class="flex justify-between items-center mt-auto">
           <span class="text-lg font-semibold text-accent">$ {{ product().price }}</span>
+          <span aria-live="polite" class="sr-only">
+            @if (justAdded()) { Producto agregado al carrito }
+          </span>
           <button
             (click)="addToCart()"
-            class="px-4 py-2 bg-accent text-accent-on rounded-md text-sm font-medium hover:bg-accent/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+            [class]="justAdded()
+              ? 'flex items-center gap-1.5 px-4 py-2 bg-success text-accent-on rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2'
+              : 'flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-on rounded-md text-sm font-medium hover:bg-accent/90 active:scale-95 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2'"
           >
-            Agregar
+            @if (justAdded()) {
+              <svg class="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+              </svg>
+              Agregado
+            } @else {
+              Agregar
+            }
           </button>
         </div>
       </div>
@@ -76,11 +88,24 @@ interface Product {
     }
   `
 })
-export class ProductCard {
+export class ProductCard implements OnDestroy {
   product = input.required<Product>();
   private readonly cartService = inject(CartService);
 
+  readonly justAdded = signal(false);
+  private addedTimer: ReturnType<typeof setTimeout> | null = null;
+
   addToCart(): void {
     this.cartService.addItem(this.product(), 1);
+    if (this.addedTimer !== null) clearTimeout(this.addedTimer);
+    this.justAdded.set(true);
+    this.addedTimer = setTimeout(() => {
+      this.justAdded.set(false);
+      this.addedTimer = null;
+    }, 1500);
+  }
+
+  ngOnDestroy(): void {
+    if (this.addedTimer !== null) clearTimeout(this.addedTimer);
   }
 }

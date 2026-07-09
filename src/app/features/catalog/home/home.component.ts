@@ -46,7 +46,7 @@ import { ProductImagePlaceholderComponent } from '../../../shared/components/pro
                 <div class="relative z-10 w-full px-4 pb-4">
                   <a
                     [routerLink]="settings()!.bannerButtonLink"
-                    class="bg-accent text-accent-on px-5 py-2 rounded-md text-sm font-semibold hover:bg-accent/90 transition-colors inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                    class="bg-accent text-accent-on px-5 py-2 rounded-md text-sm font-semibold hover:bg-accent/90 active:scale-95 transition-all duration-150 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
                   >
                     {{ settings()!.bannerButtonText }}
                   </a>
@@ -75,7 +75,7 @@ import { ProductImagePlaceholderComponent } from '../../../shared/components/pro
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Contactanos por WhatsApp"
-                class="bg-success rounded-xl p-4 flex flex-col gap-2 text-accent-on hover:bg-success/90 transition-colors min-h-[120px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2"
+                class="bg-success rounded-xl p-4 flex flex-col gap-2 text-accent-on hover:bg-success/90 active:scale-95 transition-all duration-150 min-h-[120px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2"
               >
                 <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/15 shrink-0" aria-hidden="true">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,7 +135,7 @@ import { ProductImagePlaceholderComponent } from '../../../shared/components/pro
               <a
                 [routerLink]="['/product', product.id]"
                 [attr.aria-label]="'Ver producto: ' + product.name"
-                class="relative flex-shrink-0 w-[72vw] sm:w-64 md:w-52 lg:w-56 aspect-[3/4] rounded-2xl overflow-hidden snap-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 group"
+                class="relative flex-shrink-0 w-[72vw] sm:w-64 md:w-52 lg:w-56 aspect-[3/4] rounded-2xl overflow-hidden snap-start active:scale-[0.98] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 group"
                 style="background: #1C1712"
               >
                 <!-- Imagen a sangre -->
@@ -183,7 +183,7 @@ import { ProductImagePlaceholderComponent } from '../../../shared/components/pro
             </p>
             <a
               routerLink="/catalog"
-              class="bg-accent-on text-fg px-6 py-2.5 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-on focus-visible:ring-offset-2 focus-visible:ring-offset-accent"
+              class="bg-accent-on text-fg px-6 py-2.5 rounded-md text-sm font-semibold hover:opacity-90 active:scale-95 transition-all duration-150 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-on focus-visible:ring-offset-2 focus-visible:ring-offset-accent"
             >
               Ver Catálogo
             </a>
