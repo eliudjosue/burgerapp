@@ -40,7 +40,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   `,
   host: {
     class: 'flex items-center justify-center w-full h-full',
-    style: 'background-color: color-mix(in oklch, var(--color-accent) 12%, transparent)',
+    style: 'background-color: color-mix(in oklch, var(--color-border) 40%, var(--color-bg))',
   },
 })
 export class ProductImagePlaceholderComponent {}

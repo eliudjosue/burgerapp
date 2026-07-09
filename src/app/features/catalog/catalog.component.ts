@@ -26,7 +26,7 @@ import type { Category, Product } from '../../core/mock-data';
         <select
           id="categoryFilter"
           (change)="onCategoryChange($event)"
-          class="w-full p-3 border border-border rounded-md bg-surface text-body focus:ring-2 focus:ring-accent-soft focus:border-accent"
+          class="w-full p-3 border border-border rounded-md bg-surface text-fg focus:ring-2 focus:ring-accent-soft focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <option value="">Todas las categorías</option>
           @for (category of categories(); track category.id) {
