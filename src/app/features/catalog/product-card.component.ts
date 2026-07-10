@@ -20,8 +20,9 @@ interface Product {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, ProductImagePlaceholderComponent],
   template: `
-    <div class="rounded-md overflow-hidden border border-border bg-surface shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col h-full">
-      <a [routerLink]="['/product', product().id]" class="block aspect-[16/10] relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset">
+    <div class="h-full flex flex-col bg-surface rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+      <!-- Image -->
+      <a [routerLink]="['/product', product().id]" class="block relative aspect-square overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset">
         @if (product().imageUrl) {
           <img
             #imgEl
@@ -51,31 +52,35 @@ interface Product {
           </span>
         }
       </a>
-      <div class="p-4 flex flex-col flex-1">
-        <h3 class="h3 mb-1 break-words">
+
+      <!-- Content -->
+      <div class="p-3 md:p-4 flex flex-col flex-1">
+        <h3 class="font-semibold text-sm md:text-base text-fg line-clamp-1">
           <a [routerLink]="['/product', product().id]" class="text-inherit hover:text-accent rounded-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent">
             {{ product().name }}
           </a>
         </h3>
-        <p class="small text-muted mb-2 break-words line-clamp-2">{{ product().description }}</p>
-        <div class="flex justify-between items-center mt-auto">
-          <span class="text-lg font-semibold text-accent">$ {{ product().price }}</span>
+        <p class="text-xs text-muted line-clamp-1 mt-0.5">{{ product().description }}</p>
+        <div class="flex justify-between items-center mt-auto pt-2">
+          <span class="text-lg font-bold text-fg">$ {{ product().price }}</span>
           <span aria-live="polite" class="sr-only">
             @if (justAdded()) { Producto agregado al carrito }
           </span>
           <button
             (click)="addToCart()"
+            [attr.aria-label]="'Agregar ' + product().name + ' al carrito'"
             [class]="justAdded()
-              ? 'flex items-center gap-1.5 px-4 py-2 bg-success text-accent-on rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2'
-              : 'flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-on rounded-md text-sm font-medium hover:bg-accent/90 active:scale-95 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2'"
+              ? 'w-9 h-9 rounded-xl flex items-center justify-center bg-success text-accent-on transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2'
+              : 'w-9 h-9 rounded-xl flex items-center justify-center bg-accent text-accent-on hover:bg-accent/90 active:scale-95 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2'"
           >
             @if (justAdded()) {
-              <svg class="h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
               </svg>
-              Agregado
             } @else {
-              Agregar
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+              </svg>
             }
           </button>
         </div>
@@ -102,7 +107,7 @@ export class ProductCard implements OnDestroy {
     this.addedTimer = setTimeout(() => {
       this.justAdded.set(false);
       this.addedTimer = null;
-    }, 1500);
+    }, 1200);
   }
 
   ngOnDestroy(): void {

@@ -16,17 +16,17 @@ import type { Category, Product } from '../../core/mock-data';
   imports: [ProductCard],
   template: `
     <div class="container mx-auto px-4 py-8">
-      <h1 class="h1 mb-8 text-center">Nuestro Menú</h1>
+      <h1 class="text-2xl md:text-3xl font-bold text-fg mb-3 md:mb-5 text-center">Nuestro Menú</h1>
 
       <!-- Category Filter -->
-      <div class="mb-8">
+      <div class="mb-5 md:mb-6">
         <label for="categoryFilter" class="block text-sm font-medium text-muted mb-2">
           Filtrar por categoría
         </label>
         <select
           id="categoryFilter"
           (change)="onCategoryChange($event)"
-          class="w-full p-3 border border-border rounded-md bg-surface text-fg focus:ring-2 focus:ring-accent-soft focus:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          class="w-full sm:max-w-xs p-3 border border-border rounded-lg bg-surface text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
         >
           <option value="">Todas las categorías</option>
           @for (category of categories(); track category.id) {
@@ -50,7 +50,7 @@ import type { Category, Product } from '../../core/mock-data';
           <p class="text-muted">No hay productos disponibles en esta categoría.</p>
         </div>
       } @else {
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 items-stretch">
           @for (product of filteredProducts(); track product.id) {
             <app-product-card [product]="product" />
           }
