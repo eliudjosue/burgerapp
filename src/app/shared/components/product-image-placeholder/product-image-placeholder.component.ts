@@ -39,8 +39,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     </svg>
   `,
   host: {
-    class: 'flex items-center justify-center w-full h-full',
-    style: 'background-color: color-mix(in oklch, var(--color-border) 40%, var(--color-bg))',
+    class: 'flex items-center justify-center w-full h-full bg-bg',
   },
 })
 export class ProductImagePlaceholderComponent {}
