@@ -12,6 +12,8 @@ import { Router } from '@angular/router';
 import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { SupabaseClientService } from '../../../core/supabase.client';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { AudioNotificationService } from '../../../core/services/audio-notification.service';
 
 interface CashierOrderItem {
   product_name: string;
@@ -104,6 +106,21 @@ const SELECT_FIELDS =
           <span class="text-[11px] text-white/40">
             {{ authService.staffProfile()?.name }}
           </span>
+          <button
+            type="button"
+            (click)="audioService.toggleSound()"
+            class="flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded
+                   cursor-pointer border-0 transition-colors"
+            [class.bg-white]="audioService.soundEnabled()"
+            [class.text-fg]="audioService.soundEnabled()"
+            [class.bg-white/10]="!audioService.soundEnabled()"
+            [class.text-white/50]="!audioService.soundEnabled()"
+            [attr.aria-label]="audioService.soundEnabled() ? 'Silenciar notificaciones' : 'Activar notificaciones de audio'"
+            [attr.aria-pressed]="audioService.soundEnabled()"
+          >
+            <span aria-hidden="true">{{ audioService.soundEnabled() ? '🔔' : '🔕' }}</span>
+            {{ audioService.soundEnabled() ? 'Sonido ON' : 'Activar sonido' }}
+          </button>
           <button
             type="button"
             (click)="logout()"
@@ -601,6 +618,8 @@ export class CashierComponent implements OnInit, OnDestroy {
   readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
+  private readonly toastService = inject(ToastService);
+  readonly audioService = inject(AudioNotificationService);
 
   readonly orders = signal<CashierOrder[]>([]);
   readonly loading = signal(true);
@@ -629,6 +648,7 @@ export class CashierComponent implements OnInit, OnDestroy {
   private alertTimeoutId = 0;
 
   async ngOnInit(): Promise<void> {
+    this.audioService.initAudio();
     this.updateClock();
     this.clockIntervalId = window.setInterval(() => this.updateClock(), 30_000);
     await this.loadOrders();
@@ -878,7 +898,9 @@ export class CashierComponent implements OnInit, OnDestroy {
     if (CASHIER_STATUS_SET.has(row.order_status)) {
       await this.loadSingleOrder(row.id);
       if (row.order_status === 'pending') {
-        this.showAlert(`Nuevo pedido ${row.order_number ?? ''}`);
+        const loaded = this.orders().find(o => o.id === row.id);
+        this.toastService.add(row.id, row.order_number ?? '', loaded?.total ?? 0);
+        void this.audioService.playBeep();
       }
     } else {
       // Order moved to delivered/cancelled/rejected — remove from view.

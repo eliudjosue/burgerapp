@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnDestroy,
   OnInit,
   computed,
   inject,
@@ -9,6 +10,9 @@ import {
 import { Router } from '@angular/router';
 import { SupabaseClientService } from '../../../../core/supabase.client';
 import { AuthService } from '../../../../core/services/auth.service';
+import { RealtimeOrdersService } from '../../../../core/services/realtime-orders.service';
+import { ToastService } from '../../../../core/services/toast.service';
+import { AudioNotificationService } from '../../../../core/services/audio-notification.service';
 
 export type OrderStatus =
   | 'pending'
@@ -151,6 +155,21 @@ const BADGE_BASE = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-[10
           <span class="text-[11px] text-white/40">
             {{ authService.staffProfile()?.name }}
           </span>
+          <button
+            type="button"
+            (click)="audioService.toggleSound()"
+            class="flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded
+                   cursor-pointer border-0 transition-colors"
+            [class.bg-white]="audioService.soundEnabled()"
+            [class.text-fg]="audioService.soundEnabled()"
+            [class.bg-white/10]="!audioService.soundEnabled()"
+            [class.text-white/50]="!audioService.soundEnabled()"
+            [attr.aria-label]="audioService.soundEnabled() ? 'Silenciar notificaciones' : 'Activar notificaciones de audio'"
+            [attr.aria-pressed]="audioService.soundEnabled()"
+          >
+            <span aria-hidden="true">{{ audioService.soundEnabled() ? '🔔' : '🔕' }}</span>
+            {{ audioService.soundEnabled() ? 'Sonido ON' : 'Activar sonido' }}
+          </button>
           <button
             type="button"
             (click)="logout()"
@@ -655,10 +674,13 @@ const BADGE_BASE = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-[10
   `,
   styles: `:host { display: block; }`,
 })
-export class AdminOrdersComponent implements OnInit {
+export class AdminOrdersComponent implements OnInit, OnDestroy {
   private readonly supabase = inject(SupabaseClientService);
   readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly realtimeOrders = inject(RealtimeOrdersService);
+  readonly toastService = inject(ToastService);
+  readonly audioService = inject(AudioNotificationService);
 
   // ── View ──────────────────────────────────────────────────────────────────
   readonly view = signal<'list' | 'detail'>('list');
@@ -692,7 +714,17 @@ export class AdminOrdersComponent implements OnInit {
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   async ngOnInit(): Promise<void> {
+    this.audioService.initAudio();
     await this.loadOrders();
+    this.realtimeOrders.subscribe(order => {
+      this.toastService.add(order.id, order.order_number, order.total);
+      void this.audioService.playBeep();
+      void this.loadOrders();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.realtimeOrders.unsubscribe();
   }
 
   // ── Filter event handlers ─────────────────────────────────────────────────
