@@ -421,6 +421,35 @@ const PLACEHOLDER_VALUES: ReadonlySet<string> = new Set([
             </label>
           </div>
 
+          <!-- ── Section: Google Tag Manager ──────────────────────────── -->
+          <div class="bg-surface border border-border rounded-lg p-4 mb-3">
+            <p class="text-[11px] font-mono font-semibold uppercase tracking-wider
+                      text-muted mb-4">
+              Google Tag Manager
+            </p>
+
+            <label class="block">
+              <span class="text-[13px] font-medium text-muted block mb-1">
+                ID de Google Tag Manager
+              </span>
+              <input
+                type="text"
+                [value]="fGtmContainerId()"
+                (input)="fGtmContainerId.set($any($event.target).value)"
+                placeholder="GTM-XXXXXX"
+                autocomplete="off"
+                class="w-full text-[14px] px-3 py-2 rounded-lg border
+                       focus:outline-none focus:border-accent bg-[#f5f4f1] text-fg
+                       font-mono"
+                [class.border-danger]="hasGtmError()"
+                [class.border-border]="!hasGtmError()"
+              />
+              <span class="text-[11px] text-muted mt-1 block">
+                Solo el ID del contenedor (GTM-XXXXXX). Dejar vacío para desactivar.
+              </span>
+            </label>
+          </div>
+
           <!-- Bottom save button -->
           <div class="pt-2">
             <button
@@ -472,6 +501,7 @@ export class AdminSiteSettingsComponent implements OnInit {
   readonly fWhatsappNumber = signal('');
   readonly fBankTransferAlias = signal('');
   readonly fBankTransferCbu = signal('');
+  readonly fGtmContainerId = signal('');
 
   // ── Validation ────────────────────────────────────────────────────────────
   readonly triedSave = signal(false);
@@ -484,6 +514,12 @@ export class AdminSiteSettingsComponent implements OnInit {
         'El número de WhatsApp debe contener solo dígitos (10 a 15), con código de país.',
       );
     }
+    const gtm = this.fGtmContainerId().trim();
+    if (gtm && !/^GTM-[A-Z0-9]+$/.test(gtm)) {
+      errors.push(
+        'El ID de Google Tag Manager debe tener el formato GTM-XXXXXX (solo letras mayúsculas y números).',
+      );
+    }
     return errors;
   });
 
@@ -493,6 +529,10 @@ export class AdminSiteSettingsComponent implements OnInit {
 
   readonly hasWhatsAppError = computed(
     () => this.triedSave() && this.formErrors().some(e => e.includes('WhatsApp')),
+  );
+
+  readonly hasGtmError = computed(
+    () => this.triedSave() && this.formErrors().some(e => e.includes('Tag Manager')),
   );
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -511,6 +551,7 @@ export class AdminSiteSettingsComponent implements OnInit {
       this.fWhatsappNumber.set(s.whatsappNumber ?? '');
       this.fBankTransferAlias.set(s.bankTransferAlias ?? '');
       this.fBankTransferCbu.set(s.bankTransferCbu ?? '');
+      this.fGtmContainerId.set(s.gtmContainerId ?? '');
     } catch {
       this.hasError.set(true);
     } finally {
@@ -592,6 +633,7 @@ export class AdminSiteSettingsComponent implements OnInit {
         whatsappNumber:      this.fWhatsappNumber().trim() || null,
         bankTransferAlias:   this.fBankTransferAlias().trim() || null,
         bankTransferCbu:     this.fBankTransferCbu().trim() || null,
+        gtmContainerId:      this.fGtmContainerId().trim() || null,
       });
 
       this.saveSuccess.set(true);

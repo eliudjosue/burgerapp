@@ -12,6 +12,7 @@ export interface SiteSettingsData {
   bannerButtonLink: string | null;
   bankTransferAlias: string | null;
   bankTransferCbu: string | null;
+  gtmContainerId: string | null;
 }
 
 interface DbSiteSettings {
@@ -25,6 +26,7 @@ interface DbSiteSettings {
   banner_button_link: string | null;
   bank_transfer_alias: string | null;
   bank_transfer_cbu: string | null;
+  gtm_container_id: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -37,7 +39,7 @@ export class SiteSettingsService {
       .select(
         'business_hours, whatsapp_number, logo_url, banner_image_url, ' +
         'banner_title, banner_subtitle, banner_button_text, banner_button_link, ' +
-        'bank_transfer_alias, bank_transfer_cbu'
+        'bank_transfer_alias, bank_transfer_cbu, gtm_container_id'
       )
       .single();
 
@@ -55,6 +57,7 @@ export class SiteSettingsService {
       bannerButtonLink: row.banner_button_link,
       bankTransferAlias: row.bank_transfer_alias,
       bankTransferCbu: row.bank_transfer_cbu,
+      gtmContainerId: row.gtm_container_id,
     };
   }
 
@@ -72,6 +75,7 @@ export class SiteSettingsService {
         banner_button_link: data.bannerButtonLink,
         bank_transfer_alias: data.bankTransferAlias,
         bank_transfer_cbu:   data.bankTransferCbu,
+        gtm_container_id:    data.gtmContainerId,
       } satisfies DbSiteSettings)
       .eq('id', 1);
 

@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
+import { GtmService } from './core/services/gtm.service';
 
 @Component({
   selector: 'app-root',
@@ -12,4 +13,8 @@ import { ToastContainerComponent } from './shared/components/toast-container/toa
 })
 export class App {
   protected readonly title = signal('burgerapp');
+
+  constructor() {
+    inject(GtmService).init();
+  }
 }
