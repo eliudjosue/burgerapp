@@ -10,6 +10,7 @@ import { Location, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CartService } from '../../../core/services/cart.service';
 import { ProductService } from '../../../core/services/product.service';
+import { SeoService } from '../../../core/services/seo.service';
 import { Product } from '../../../core/mock-data';
 import { ProductImagePlaceholderComponent } from '../../../shared/components/product-image-placeholder/product-image-placeholder.component';
 
@@ -225,6 +226,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly cartService = inject(CartService);
   private readonly productService = inject(ProductService);
+  private readonly seoService = inject(SeoService);
   private readonly location = inject(Location);
 
   readonly product = signal<Product | null>(null);
@@ -238,6 +240,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.loading.set(false);
+      this.seoService.reset();
       return;
     }
     try {
@@ -248,8 +251,19 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       } else {
         this.product.set(product);
       }
+      const prod = this.product();
+      if (prod) {
+        this.seoService.update({
+          title: prod.name,
+          description: prod.description,
+          image: prod.imageUrl,
+          type: 'article',
+        });
+      } else {
+        this.seoService.reset();
+      }
     } catch {
-      // product stays null → shows "Producto no encontrado"
+      this.seoService.reset();
     } finally {
       this.loading.set(false);
     }
@@ -284,5 +298,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.justAddedTimer !== null) clearTimeout(this.justAddedTimer);
+    this.seoService.reset();
   }
 }

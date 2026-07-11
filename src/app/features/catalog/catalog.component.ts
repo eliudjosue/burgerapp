@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { ProductCard } from './product-card.component';
 import { ProductService } from '../../core/services/product.service';
+import { SeoService } from '../../core/services/seo.service';
 import type { Category, Product } from '../../core/mock-data';
 
 @Component({
@@ -66,6 +67,7 @@ import type { Category, Product } from '../../core/mock-data';
 })
 export class Catalog implements OnInit {
   private readonly productService = inject(ProductService);
+  private readonly seoService = inject(SeoService);
 
   readonly selectedCategory = signal<string>('');
   readonly isLoading = signal(true);
@@ -90,6 +92,10 @@ export class Catalog implements OnInit {
       ]);
       this._products.set(products);
       this._categories.set(categories);
+      this.seoService.update({
+        title: 'Menú',
+        description: 'Descubrí nuestras hamburguesas artesanales, combos y más. Pedí online.',
+      });
     } catch {
       this.hasError.set(true);
     } finally {

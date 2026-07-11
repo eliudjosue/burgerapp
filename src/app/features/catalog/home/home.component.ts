@@ -8,6 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { ProductService } from '../../../core/services/product.service';
 import { SiteSettingsService, SiteSettingsData } from '../../../core/services/site-settings.service';
+import { SeoService } from '../../../core/services/seo.service';
 import type { Product, Category } from '../../../core/mock-data';
 import { ProductImagePlaceholderComponent } from '../../../shared/components/product-image-placeholder/product-image-placeholder.component';
 
@@ -197,6 +198,7 @@ import { ProductImagePlaceholderComponent } from '../../../shared/components/pro
 export class HomeComponent implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly siteSettingsService = inject(SiteSettingsService);
+  private readonly seoService = inject(SeoService);
 
   readonly isLoading = signal(true);
   readonly hasError = signal(false);
@@ -214,6 +216,14 @@ export class HomeComponent implements OnInit {
       this.settings.set(settings);
       this.featuredProducts.set(products);
       this.categories.set(categories);
+
+      const titleParts = [settings.bannerTitle, settings.bannerSubtitle].filter(Boolean);
+      this.seoService.update({
+        title: titleParts.join(' — ') || 'Burger House',
+        rawTitle: true,
+        description: settings.bannerSubtitle ?? undefined,
+        image: settings.bannerImageUrl ?? settings.logoUrl ?? undefined,
+      });
     } catch {
       this.hasError.set(true);
     } finally {

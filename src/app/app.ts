@@ -4,6 +4,7 @@ import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
 import { GtmService } from './core/services/gtm.service';
+import { SeoService } from './core/services/seo.service';
 
 @Component({
   selector: 'app-root',
@@ -16,5 +17,6 @@ export class App {
 
   constructor() {
     inject(GtmService).init();
+    inject(SeoService).loadDefaults();
   }
 }
