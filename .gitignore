@@ -42,6 +42,14 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Environment variables — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Generated at build time
+public/sitemap.xml
 # Local Pi runtime state
 .atl/
 .claude
